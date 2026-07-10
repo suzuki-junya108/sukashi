@@ -1,0 +1,45 @@
+name: Deploy showcase to GitHub Pages
+
+# main に push されるたびに showcase を index.html として公開し、
+# 常に最新の sukashi デザインシステムが Pages で閲覧できるようにする。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時デプロイを 1 本に絞り、進行中のものより新しい push を優先する
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          # showcase を入口ページにする(単一ソースを維持し、重複ファイルを作らない)
+          cp sukashi-showcase.html _site/index.html
+          # 単体配布用アセットもそのまま公開する
+          cp sukashi.css _site/sukashi.css
+          cp sukashi-icons.svg _site/sukashi-icons.svg
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
