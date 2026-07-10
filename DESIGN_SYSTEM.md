@@ -108,8 +108,17 @@ v2.1 で**暗下地版を `.sk-dark` として opt-in で追加**した(§ダー
 - `sukashi-icons.svg` — アイコンスプライト
 - `showcase.html` — 全部材+アイコン一覧のリビングスタイルガイド(intensity 連動、アイコン名タップコピー)
 
+## SwiftUI 版(ネイティブ転写)
+
+Web(CSS)と同じ憲法・トークンを SwiftUI へ転写した Swift Package を `Sources/Sukashi/` に同梱する(`import Sukashi`)。macOS 14 / iOS 17 以上、AppKit/UIKit 非依存。
+
+- 材質 `.sk-glass` → `.sukashiGlass(radius:)`。`.regularMaterial`(blur 近似・ライト/ダーク自動)に、憲法どおり実線ヘアライン2本(外周エッジ + 上辺スペキュラ)を overlay で合成し、影で浮きを作る。グラデーションは使わない。
+- 識別色 → `SukashiDot` / `SukashiCatBar` / `.sukashiCategory(_:)`。CSS 版と同じく**面には塗らず、点・線・glyph にだけ**色を乗せる(背景色 API は提供しない)。
+- ライト/ダークは `@Environment(\.colorScheme)` 追従。プライマリーは黒↔近白へモノクローム反転し、面上の図は `Sukashi.onAccent(_:)` で消えないようにする。
+- CSS 版の `--gi`(連続 intensity)は SwiftUI では Material の段階に離散化される。それ以外はトークン値まで一致させている。
+
 ## 今後の検討
 
-ポップオーバー/ツールチップ、日付ピッカー、`.is-scrolled` 自動付与のミニ JS、Tailwind preset / React コンポーネントへの転写、SwiftUI(ネイティブ)への転写、アイコンの追加(ラジオ・園芸・調理など個人アプリ向けセット)。
+ポップオーバー/ツールチップ、日付ピッカー、`.is-scrolled` 自動付与のミニ JS、Tailwind preset / React コンポーネントへの転写、SwiftUI 版のコンポーネント拡充(seg / tabbar / chip 等)、アイコンの追加(ラジオ・園芸・調理など個人アプリ向けセット)。
 
-> v2.1 で対応済み: ダークモード(`.sk-dark`)の再導入、カテゴリ識別色(`.sk-cat-*`)。
+> v2.1 で対応済み: ダークモード(`.sk-dark`)の再導入、カテゴリ識別色(`.sk-cat-*`)、SwiftUI(ネイティブ)への転写。
