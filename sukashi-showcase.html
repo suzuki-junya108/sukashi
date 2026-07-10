@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>sukashi v2.0 — living style guide</title>
+<style>
+/* ==========================================================================
+   sukashi(透かし)v2.0 — フルセット
+   Liquid Glass 系・Web 汎用デザインシステム
+   原則:
+   1. グラデーション不使用(装飾も材質も)。材質は blur / saturate / 実線ヘアラインのみ
+   2. システムは背景を持たない。全部材は透明で、ホスト側の背景の上に置く
+   3. 透明度は単一変数 --gi(0=clear 〜 1=tinted)で全連動(iOS 27 の intensity 思想)
+   ========================================================================== */
+
+:root {
+  /* ------------------------------------------------------------------
+     材質マスター
+     --gi を動かすと不透明度・blur・エッジが全部材で連動する
+     ------------------------------------------------------------------ */
+  --gi: 0.55;                          /* intensity: 0 clear 〜 1 tinted */
+  --sk-tint: 255, 255, 255;            /* ガラスの地色 RGB(無彩) */
+  --sk-ink-rgb: 20, 20, 25;
+
+  --sk-alpha:  calc(0.10 + var(--gi) * 0.65);   /* 0.10〜0.75 */
+  --sk-blur:   calc(8px + var(--gi) * 22px);    /* 8〜30px */
+  --sk-sat:    calc(1.9 - var(--gi) * 0.5);     /* clearほど彩度を上げる */
+
+  /* エッジ(グラデ禁止のため実線2本で構成) */
+  --sk-edge-dark:  rgba(0, 0, 0, calc(0.13 + var(--gi) * 0.06));  /* 外周 0.5px */
+  --sk-edge-spec:  rgba(255, 255, 255, calc(0.60 - var(--gi) * 0.2)); /* 上辺 1px */
+
+  /* 文字(ガラス上) */
+  --sk-ink:   rgba(var(--sk-ink-rgb), 0.95);
+  --sk-ink-2: rgba(var(--sk-ink-rgb), 0.60);
+  --sk-ink-3: rgba(var(--sk-ink-rgb), 0.35);
+
+  /* アクセント(単色のみ。面には使わずテキスト/アイコン/選択に限定) */
+  --sk-accent: #111418;
+  --sk-on-accent: #FFFFFF;
+  --sk-danger: #D93A2B;
+  --sk-ok:     #2E8A4E;
+
+  /* ------------------------------------------------------------------
+     造形:同心円半径(外周R = 内周R + パディング)
+     ------------------------------------------------------------------ */
+  --sk-r-s: 12px;
+  --sk-r-m: 18px;
+  --sk-r-l: 26px;
+  --sk-r-pill: 999px;
+  --sk-pad: 8px;      /* 同心円計算の基準パディング */
+
+  /* スペーシング(4px グリッド) */
+  --sk-sp-1: 4px;  --sk-sp-2: 8px;  --sk-sp-3: 12px;
+  --sk-sp-4: 16px; --sk-sp-6: 24px; --sk-sp-8: 32px;
+
+  --sk-touch: 44px;
+
+  /* タイポグラフィ(HIG 整合・base 17px 推奨) */
+  --sk-font: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+             "Segoe UI", Roboto, sans-serif;
+  --sk-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sk-t-caption: 0.706rem;   /* 12 */
+  --sk-t-foot:    0.765rem;   /* 13 */
+  --sk-t-sub:     0.882rem;   /* 15 */
+  --sk-t-body:    1rem;       /* 17 */
+  --sk-t-title3:  1.176rem;   /* 20 */
+  --sk-t-title2:  1.294rem;   /* 22 */
+  --sk-t-title1:  1.647rem;   /* 28 */
+  --sk-t-large:   2rem;       /* 34 */
+
+  /* モーション */
+  --sk-dur-1: 160ms;
+  --sk-dur-2: 240ms;
+  --sk-dur-3: 400ms;
+  --sk-ease:   cubic-bezier(0.22, 1, 0.36, 1);
+  --sk-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* 落ち影(単色。ガラスの浮きは影で作る) */
+  --sk-shadow: 0 10px 30px rgba(0, 0, 0, calc(0.10 + var(--gi) * 0.08));
+}
+
+/* ==========================================================================
+   材質:これが唯一の「ガラス」定義。全コンポーネントはこれを合成する
+   ========================================================================== */
+.sk-glass {
+  background: rgba(var(--sk-tint), var(--sk-alpha));
+  -webkit-backdrop-filter: blur(var(--sk-blur)) saturate(var(--sk-sat));
+  backdrop-filter: blur(var(--sk-blur)) saturate(var(--sk-sat));
+  box-shadow:
+    0 0 0 0.5px var(--sk-edge-dark),      /* 外周ダークエッジ */
+    inset 0 1px 0 var(--sk-edge-spec),    /* 上辺スペキュラ(実線) */
+    var(--sk-shadow);
+  color: var(--sk-ink);
+}
+
+/* backdrop-filter 非対応/透明度削減設定時のフォールバック */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sk-glass { background: rgba(var(--sk-tint), 0.92); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --gi: 1; }
+  .sk-glass {
+    background: rgba(var(--sk-tint), 0.96);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* ==========================================================================
+   ベース
+   ========================================================================== */
+.sk, .sk * , .sk *::before, .sk *::after { box-sizing: border-box; }
+.sk {
+  font-family: var(--sk-font);
+  font-size: var(--sk-t-body);
+  line-height: 1.6;
+  color: var(--sk-ink);
+  -webkit-font-smoothing: antialiased;
+}
+.sk :focus-visible { outline: 2px solid var(--sk-accent); outline-offset: 2px; }
+
+.sk-mono {
+  font-family: var(--sk-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ==========================================================================
+   コンポーネント
+   ========================================================================== */
+
+/* ツールバー / ナビゲーションバー */
+.sk-toolbar {
+  display: flex; align-items: center; gap: var(--sk-sp-3);
+  min-height: 52px;
+  padding: var(--sk-sp-2) var(--sk-sp-4);
+  border-radius: var(--sk-r-l);
+}
+.sk-toolbar__title { flex: 1; font-size: var(--sk-t-title3); font-weight: 700; }
+
+/* カード */
+.sk-card {
+  border-radius: var(--sk-r-l);
+  padding: var(--sk-sp-4);
+}
+
+/* ボタン */
+.sk-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--sk-sp-2);
+  min-height: var(--sk-touch);
+  padding: 0 var(--sk-sp-6);
+  border: none; border-radius: var(--sk-r-pill);
+  font: 600 var(--sk-t-body)/1 var(--sk-font);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--sk-dur-1) var(--sk-spring),
+              opacity var(--sk-dur-1) var(--sk-ease);
+}
+.sk-btn:active { transform: scale(0.96); }
+.sk-btn:disabled { opacity: 0.4; pointer-events: none; }
+.sk-btn--primary {                 /* 唯一の不透明部材(主操作は透けさせない) */
+  background: var(--sk-accent);
+  color: var(--sk-on-accent, #fff);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), var(--sk-shadow);
+}
+.sk-btn--quiet { background: transparent; color: var(--sk-accent);
+  box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+/* アイコンボタン */
+.sk-iconbtn {
+  width: 36px; height: 36px; border: none; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 15px; color: var(--sk-ink);
+  cursor: pointer;
+  background: rgba(var(--sk-tint), calc(var(--sk-alpha) * 0.9));
+  transition: transform var(--sk-dur-1) var(--sk-spring);
+}
+.sk-iconbtn:active { transform: scale(0.9); }
+
+/* セグメンテッドコントロール / タブバー */
+.sk-seg {
+  display: flex; gap: var(--sk-sp-1);
+  padding: var(--sk-pad);
+  border-radius: var(--sk-r-pill);
+}
+.sk-seg__item {
+  flex: 1; min-height: 36px;
+  border: none; border-radius: var(--sk-r-pill);
+  background: transparent;
+  font: 600 var(--sk-t-foot)/1 var(--sk-font);
+  color: var(--sk-ink-2);
+  cursor: pointer;
+  transition: background var(--sk-dur-2) var(--sk-ease),
+              color var(--sk-dur-2) var(--sk-ease);
+}
+.sk-seg__item[aria-selected="true"], .sk-seg__item.is-on {
+  color: var(--sk-ink);
+  background: rgba(var(--sk-tint), 0.55);
+  box-shadow: inset 0 1px 0 var(--sk-edge-spec), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+/* 入力 */
+.sk-input {
+  width: 100%;
+  min-height: var(--sk-touch);
+  padding: var(--sk-sp-3) var(--sk-sp-4);
+  border: none; border-radius: var(--sk-r-m);
+  font: var(--sk-t-body)/1.4 var(--sk-font);
+  color: var(--sk-ink);
+}
+.sk-input::placeholder { color: var(--sk-ink-3); }
+.sk-input:focus { outline: 2px solid var(--sk-accent); outline-offset: 0; }
+
+/* リスト行 */
+.sk-row {
+  display: flex; align-items: center; gap: var(--sk-sp-3);
+  min-height: var(--sk-touch);
+  padding: var(--sk-sp-2) 0;
+}
+.sk-row + .sk-row { border-top: 0.5px solid rgba(var(--sk-ink-rgb), 0.12); }
+.sk-row__main { flex: 1; min-width: 0; }
+.sk-row__value { color: var(--sk-ink-2); }
+
+/* チップ */
+.sk-chip {
+  display: inline-flex; align-items: center; gap: var(--sk-sp-1);
+  padding: var(--sk-sp-1) var(--sk-sp-3);
+  border-radius: var(--sk-r-pill);
+  font-size: var(--sk-t-foot);
+  color: var(--sk-ink-2);
+}
+.sk-chip--accent {
+  background: var(--sk-accent);
+  color: var(--sk-on-accent, #fff);
+  font-weight: 600;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* スクロールエッジ(iOS 27 の uniform toolbar 相当)
+   コンテンツがバー下を通るとき .is-scrolled を付けると不透明側に寄る */
+.sk-toolbar.is-scrolled {
+  --sk-alpha: 0.85;
+  --sk-blur: 30px;
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sk *, .sk *::before, .sk *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   v2.0 追加トークン
+   ========================================================================== */
+:root {
+  --sk-z-toolbar: 100;
+  --sk-z-sheet:   200;
+  --sk-z-modal:   300;
+  --sk-z-toast:   400;
+  --sk-icon-s: 18px;
+  --sk-icon-m: 24px;
+  --sk-icon-l: 28px;
+  --sk-hairline: rgba(var(--sk-ink-rgb), 0.14);
+  --sk-fill-1: rgba(var(--sk-ink-rgb), 0.06);   /* 無彩の静的フィル */
+  --sk-fill-2: rgba(var(--sk-ink-rgb), 0.10);
+}
+
+/* ==========================================================================
+   アイコン(sukashi icons:24グリッド・stroke 1.5・丸端)
+   ========================================================================== */
+.sk-icon {
+  width: var(--sk-icon-m); height: var(--sk-icon-m);
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0; vertical-align: middle;
+}
+.sk-icon--s { width: var(--sk-icon-s); height: var(--sk-icon-s); }
+.sk-icon--l { width: var(--sk-icon-l); height: var(--sk-icon-l); }
+
+/* ==========================================================================
+   フォーム部材
+   ========================================================================== */
+
+/* セレクト */
+.sk-select { position: relative; }
+.sk-select select {
+  appearance: none; -webkit-appearance: none;
+  width: 100%; min-height: var(--sk-touch);
+  padding: var(--sk-sp-3) 40px var(--sk-sp-3) var(--sk-sp-4);
+  border: none; border-radius: var(--sk-r-m);
+  font: var(--sk-t-body)/1.4 var(--sk-font);
+  color: var(--sk-ink); background: transparent; cursor: pointer;
+}
+.sk-select::after {
+  content: ""; position: absolute; right: 16px; top: 50%;
+  width: 8px; height: 8px;
+  border-right: 1.5px solid var(--sk-ink-2);
+  border-bottom: 1.5px solid var(--sk-ink-2);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+
+/* テキストエリア */
+.sk-textarea {
+  width: 100%; min-height: 96px;
+  padding: var(--sk-sp-3) var(--sk-sp-4);
+  border: none; border-radius: var(--sk-r-m);
+  font: var(--sk-t-body)/1.6 var(--sk-font);
+  color: var(--sk-ink); resize: vertical;
+}
+.sk-textarea::placeholder { color: var(--sk-ink-3); }
+.sk-textarea:focus { outline: 2px solid var(--sk-accent); }
+
+/* スイッチ(iOSサイズ 51x31) */
+.sk-switch { position: relative; display: inline-block;
+  width: 51px; height: 31px; flex-shrink: 0; cursor: pointer; }
+.sk-switch input { position: absolute; opacity: 0; width: 100%; height: 100%;
+  margin: 0; cursor: pointer; }
+.sk-switch__track {
+  position: absolute; inset: 0; border-radius: 999px;
+  background: var(--sk-fill-2);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline);
+  transition: background var(--sk-dur-2) var(--sk-ease);
+}
+.sk-switch__track::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 27px; height: 27px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06), 0 3px 8px rgba(0,0,0,0.18);
+  transition: transform var(--sk-dur-2) var(--sk-spring);
+}
+.sk-switch input:checked + .sk-switch__track { background: var(--sk-accent); }
+.sk-switch input:checked + .sk-switch__track::after { transform: translateX(20px); }
+.sk-switch input:focus-visible + .sk-switch__track {
+  outline: 2px solid var(--sk-accent); outline-offset: 2px; }
+
+/* チェックボックス */
+.sk-check { display: inline-flex; align-items: center; gap: var(--sk-sp-3);
+  cursor: pointer; min-height: var(--sk-touch); }
+.sk-check input { position: absolute; opacity: 0; }
+.sk-check__box {
+  width: 22px; height: 22px; border-radius: 7px; position: relative;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 1px var(--sk-hairline);
+  transition: background var(--sk-dur-1) var(--sk-ease);
+  flex-shrink: 0;
+}
+.sk-check__box::after {
+  content: ""; position: absolute; left: 7px; top: 3.5px;
+  width: 6px; height: 11px;
+  border-right: 2px solid #fff; border-bottom: 2px solid #fff;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--sk-dur-1) var(--sk-spring);
+}
+.sk-check input:checked + .sk-check__box { background: var(--sk-accent); box-shadow: none; }
+.sk-check input:checked + .sk-check__box::after { transform: rotate(45deg) scale(1); }
+.sk-check input:focus-visible + .sk-check__box {
+  outline: 2px solid var(--sk-accent); outline-offset: 2px; }
+
+/* ラジオ */
+.sk-radio { display: inline-flex; align-items: center; gap: var(--sk-sp-3);
+  cursor: pointer; min-height: var(--sk-touch); }
+.sk-radio input { position: absolute; opacity: 0; }
+.sk-radio__dot {
+  width: 22px; height: 22px; border-radius: 50%; position: relative;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 1px var(--sk-hairline);
+  flex-shrink: 0;
+}
+.sk-radio__dot::after {
+  content: ""; position: absolute; inset: 6px; border-radius: 50%;
+  background: var(--sk-accent); transform: scale(0);
+  transition: transform var(--sk-dur-1) var(--sk-spring);
+}
+.sk-radio input:checked + .sk-radio__dot { box-shadow: inset 0 0 0 1.5px var(--sk-accent); }
+.sk-radio input:checked + .sk-radio__dot::after { transform: scale(1); }
+
+/* レンジスライダー */
+.sk-range { -webkit-appearance: none; appearance: none;
+  width: 100%; height: 44px; background: transparent; cursor: pointer; }
+.sk-range::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 2px; background: var(--sk-fill-2); }
+.sk-range::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 26px; height: 26px; margin-top: -11px;
+  border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 3px 8px rgba(0,0,0,0.2); }
+.sk-range::-moz-range-track {
+  height: 4px; border-radius: 2px; background: var(--sk-fill-2); }
+.sk-range::-moz-range-thumb {
+  width: 26px; height: 26px; border: none; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(0,0,0,0.08), 0 3px 8px rgba(0,0,0,0.2); }
+
+/* ==========================================================================
+   表示部材
+   ========================================================================== */
+
+/* バッジ(通知数) */
+.sk-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: 999px;
+  background: var(--sk-accent); color: var(--sk-on-accent, #fff);
+  font: 700 11px/1 var(--sk-mono);
+}
+.sk-badge--danger { background: var(--sk-danger); color: #fff; }
+
+/* アバター(頭文字) */
+.sk-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--sk-fill-2); color: var(--sk-ink);
+  font: 700 var(--sk-t-sub)/1 var(--sk-font);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline);
+  flex-shrink: 0;
+}
+.sk-avatar--s { width: 30px; height: 30px; font-size: var(--sk-t-caption); }
+
+/* プログレスバー */
+.sk-progress {
+  height: 6px; border-radius: 3px; overflow: hidden;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline);
+}
+.sk-progress > i {
+  display: block; height: 100%; border-radius: 3px;
+  background: var(--sk-accent);
+  transition: width var(--sk-dur-3) var(--sk-ease);
+}
+
+/* スピナー */
+.sk-spinner {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2.5px solid var(--sk-fill-2);
+  border-top-color: var(--sk-accent);
+  animation: sk-spin 0.8s linear infinite;
+}
+@keyframes sk-spin { to { transform: rotate(360deg); } }
+
+/* スケルトン(グラデ禁止のため脈動のみ) */
+.sk-skeleton {
+  border-radius: var(--sk-r-s);
+  background: var(--sk-fill-1);
+  animation: sk-pulse 1.4s ease-in-out infinite;
+}
+@keyframes sk-pulse { 50% { opacity: 0.45; } }
+
+/* 区切り線 */
+.sk-divider { height: 0.5px; background: var(--sk-hairline); border: none; }
+
+/* テーブル */
+.sk-table { width: 100%; border-collapse: collapse; font-size: var(--sk-t-sub); }
+.sk-table th {
+  text-align: left; font-weight: 600;
+  font-size: var(--sk-t-caption); color: var(--sk-ink-2);
+  padding: var(--sk-sp-2) var(--sk-sp-3);
+  border-bottom: 1px solid var(--sk-hairline);
+}
+.sk-table td {
+  padding: var(--sk-sp-3);
+  border-bottom: 0.5px solid var(--sk-hairline);
+}
+.sk-table tr:last-child td { border-bottom: none; }
+.sk-table .num, .sk-table [data-num] { text-align: right; }
+
+/* 空状態 */
+.sk-empty {
+  text-align: center; padding: var(--sk-sp-8) var(--sk-sp-4);
+  color: var(--sk-ink-3);
+}
+.sk-empty .sk-icon { width: 40px; height: 40px; stroke-width: 1.2; margin-bottom: var(--sk-sp-3); }
+
+/* ==========================================================================
+   オーバーレイ
+   ========================================================================== */
+
+/* スクリム */
+.sk-scrim {
+  position: fixed; inset: 0; z-index: var(--sk-z-modal);
+  background: rgba(0,0,0,0.22);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--sk-dur-2) var(--sk-ease);
+}
+.sk-scrim.is-open { opacity: 1; pointer-events: auto; }
+
+/* モーダル */
+.sk-modal {
+  position: fixed; left: 50%; top: 50%; z-index: calc(var(--sk-z-modal) + 1);
+  width: min(92vw, 380px);
+  border-radius: var(--sk-r-l);
+  padding: var(--sk-sp-6) var(--sk-sp-4) var(--sk-sp-4);
+  transform: translate(-50%, -50%) scale(0.94);
+  opacity: 0; pointer-events: none;
+  transition: transform var(--sk-dur-2) var(--sk-spring),
+              opacity var(--sk-dur-2) var(--sk-ease);
+}
+.sk-modal.is-open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1; pointer-events: auto;
+}
+
+/* ボトムシート */
+.sk-sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: calc(var(--sk-z-modal) + 1);
+  border-radius: var(--sk-r-l) var(--sk-r-l) 0 0;
+  padding: var(--sk-sp-3) var(--sk-sp-4)
+           calc(var(--sk-sp-6) + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%);
+  transition: transform var(--sk-dur-3) var(--sk-spring);
+}
+.sk-sheet.is-open { transform: translateY(0); }
+.sk-sheet__grip {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--sk-hairline);
+  margin: 0 auto var(--sk-sp-4);
+}
+
+/* トースト */
+.sk-toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: var(--sk-z-toast);
+  display: inline-flex; align-items: center; gap: var(--sk-sp-2);
+  padding: var(--sk-sp-3) var(--sk-sp-5);
+  border-radius: var(--sk-r-pill);
+  font-size: var(--sk-t-sub); font-weight: 600;
+  transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  transition: transform var(--sk-dur-2) var(--sk-spring),
+              opacity var(--sk-dur-2) var(--sk-ease);
+}
+.sk-toast.is-show { transform: translate(-50%, 0); opacity: 1; }
+
+/* タブバー(モバイル下部固定) */
+.sk-tabbar {
+  position: fixed; left: 12px; right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  z-index: var(--sk-z-toolbar);
+  display: flex; gap: var(--sk-sp-1);
+  padding: var(--sk-pad);
+  border-radius: var(--sk-r-pill);
+}
+.sk-tabbar__item {
+  flex: 1; border: none; background: transparent; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 0 6px; border-radius: var(--sk-r-pill);
+  font: 600 10px/1 var(--sk-font); color: var(--sk-ink-2);
+  transition: background var(--sk-dur-2) var(--sk-ease), color var(--sk-dur-2) var(--sk-ease);
+}
+.sk-tabbar__item.is-on {
+  color: var(--sk-ink); background: rgba(var(--sk-tint), 0.55);
+  box-shadow: inset 0 1px 0 var(--sk-edge-spec), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+/* ===== スタイルガイド専用 ===== */
+* { margin: 0; }
+body { font-family: var(--sk-font); background: #FFFFFF; }
+.host { min-height: 100vh; padding: 20px 16px 120px; }
+.stage { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.sec-label { font-size: var(--sk-t-caption); color: var(--sk-ink-3);
+  letter-spacing: 0.12em; font-family: var(--sk-mono); margin-bottom: 10px; }
+.sec { }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.rowx { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.panel { position: sticky; top: 12px; z-index: 150; }
+.panel .inner { display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: var(--sk-r-l); }
+.panel label { font-size: 12px; color: var(--sk-ink-2); }
+.gival { font-size: 12px; width: 40px; text-align: right; color: var(--sk-ink-2); }
+.icons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
+.icell { display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 4px 8px; border: none; border-radius: var(--sk-r-s);
+  background: transparent; color: var(--sk-ink); cursor: pointer; }
+.icell:hover, .icell:active { background: var(--sk-fill-1); }
+.icell span { font-size: 9px; color: var(--sk-ink-3); font-family: var(--sk-mono);
+  word-break: break-all; text-align: center; }
+.type-row { display: flex; align-items: baseline; gap: 12px; }
+.type-row .sz { width: 90px; font-family: var(--sk-mono); font-size: 11px; color: var(--sk-ink-3); flex-shrink: 0; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+<!-- sukashi icons v1.0 / 24x24 grid / stroke 1.5 / round cap-join / currentColor -->
+
+<!-- ナビゲーション -->
+<symbol id="sk-i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8 20 20"/></symbol>
+<symbol id="sk-i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="sk-i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="sk-i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="sk-i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7"/></symbol>
+<symbol id="sk-i-chevron-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+<symbol id="sk-i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="sk-i-chevron-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+<symbol id="sk-i-chevron-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+<symbol id="sk-i-arrow-up" viewBox="0 0 24 24"><path d="M12 20V4M5 11l7-7 7 7"/></symbol>
+<symbol id="sk-i-arrow-down" viewBox="0 0 24 24"><path d="M12 4v16M5 13l7 7 7-7"/></symbol>
+<symbol id="sk-i-arrow-left" viewBox="0 0 24 24"><path d="M20 12H4M11 5l-7 7 7 7"/></symbol>
+<symbol id="sk-i-arrow-right" viewBox="0 0 24 24"><path d="M4 12h16M13 5l7 7-7 7"/></symbol>
+<symbol id="sk-i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="sk-i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="sk-i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 13v7H4V6h7"/></symbol>
+
+<!-- 基本オブジェクト -->
+<symbol id="sk-i-home" viewBox="0 0 24 24"><path d="m4 11 8-7 8 7M6 10v10h12V10"/></symbol>
+<symbol id="sk-i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></symbol>
+<symbol id="sk-i-users" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3 19c1.2-3 3.3-4.5 6-4.5s4.8 1.5 6 4.5M15.5 6.2A2.8 2.8 0 1 1 17 11.4M17 14.6c2 .4 3.2 1.8 4 4.4"/></symbol>
+<symbol id="sk-i-bell" viewBox="0 0 24 24"><path d="M18 16v-5a6 6 0 0 0-12 0v5l-2 3h16l-2-3M10 21a2 2 0 0 0 4 0"/></symbol>
+<symbol id="sk-i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
+<symbol id="sk-i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></symbol>
+<symbol id="sk-i-settings" viewBox="0 0 24 24"><path d="M4 8h9M17.5 8H20M4 16h3.5M12 16h8"/><circle cx="15" cy="8" r="2.2"/><circle cx="9.5" cy="16" r="2.2"/></symbol>
+<symbol id="sk-i-star" viewBox="0 0 24 24"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8L12 4z"/></symbol>
+<symbol id="sk-i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-9-9a4.8 4.8 0 0 1 9-2.4A4.8 4.8 0 0 1 21 11c-2 4.5-9 9-9 9z"/></symbol>
+<symbol id="sk-i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="sk-i-eye-off" viewBox="0 0 24 24"><path d="M4 4l16 16M9.9 6a9.4 9.4 0 0 1 2.1-.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3 3.6M6 7.3A16.6 16.6 0 0 0 2.5 12S6 18.5 12 18.5a9 9 0 0 0 3.2-.6"/></symbol>
+<symbol id="sk-i-lock" viewBox="0 0 24 24"><rect x="5.5" y="11" width="13" height="9" rx="2.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></symbol>
+
+<!-- コミュニケーション -->
+<symbol id="sk-i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></symbol>
+<symbol id="sk-i-chat" viewBox="0 0 24 24"><path d="M20 5.5H4v10.5h4v4l5-4h7V5.5z"/></symbol>
+<symbol id="sk-i-share" viewBox="0 0 24 24"><path d="M12 3v12M8 7l4-4 4 4M6 11H5v10h14V11h-1"/></symbol>
+<symbol id="sk-i-link" viewBox="0 0 24 24"><path d="m9.5 14.5 5-5M8 12l-2.5 2.5a3.5 3.5 0 0 0 5 5L13 17M16 12l2.5-2.5a3.5 3.5 0 0 0-5-5L11 7"/></symbol>
+<symbol id="sk-i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5H7a2 2 0 0 0-2 2v8"/></symbol>
+
+<!-- 編集・操作 -->
+<symbol id="sk-i-edit" viewBox="0 0 24 24"><path d="m4 20 1-4L16.5 4.5a2.12 2.12 0 0 1 3 3L8 19l-4 1zM14.5 6.5l3 3"/></symbol>
+<symbol id="sk-i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13M10 11v6M14 11v6"/></symbol>
+<symbol id="sk-i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+<symbol id="sk-i-upload" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></symbol>
+<symbol id="sk-i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+<symbol id="sk-i-sort" viewBox="0 0 24 24"><path d="M7 4v14M4 15l3 3 3-3M17 20V6M14 9l3-3 3 3"/></symbol>
+<symbol id="sk-i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M18 3v4h-4"/></symbol>
+
+<!-- メディア・ファイル -->
+<symbol id="sk-i-folder" viewBox="0 0 24 24"><path d="M3.5 6.5h6l2 2.5h9v9.5h-17V6.5z"/></symbol>
+<symbol id="sk-i-file" viewBox="0 0 24 24"><path d="M6.5 3.5h8l4 4v13h-12v-17zM14 3.5V8h4.5"/></symbol>
+<symbol id="sk-i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4.5 17 4.5-4 3 2.5 4-3.5 3.5 3.5"/></symbol>
+<symbol id="sk-i-mic" viewBox="0 0 24 24"><rect x="9.5" y="3.5" width="5" height="10" rx="2.5"/><path d="M6 11a6 6 0 0 0 12 0M12 17.5V21M9 21h6"/></symbol>
+<symbol id="sk-i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5z"/></symbol>
+<symbol id="sk-i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
+<symbol id="sk-i-chart" viewBox="0 0 24 24"><path d="M4 20h16M7 17v-5M12 17V5M17 17v-8"/></symbol>
+
+<!-- コマース(EC向け) -->
+<symbol id="sk-i-cart" viewBox="0 0 24 24"><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M3.5 4.5H6l2.4 11h9.8l2.3-8H7"/></symbol>
+<symbol id="sk-i-tag" viewBox="0 0 24 24"><path d="M4 4.5h7l9 9-7 7-9-9v-7z"/><circle cx="8.5" cy="9" r="1.4"/></symbol>
+<symbol id="sk-i-package" viewBox="0 0 24 24"><path d="m4 8 8-4 8 4v9l-8 4-8-4V8zM4 8l8 4 8-4M12 12v9"/></symbol>
+<symbol id="sk-i-truck" viewBox="0 0 24 24"><path d="M2.5 7h12v9.5h-12zM14.5 10h4l2.5 3v3.5h-6.5"/><circle cx="7" cy="18.5" r="1.8"/><circle cx="17" cy="18.5" r="1.8"/></symbol>
+<symbol id="sk-i-barcode" viewBox="0 0 24 24"><path d="M4 6v12M7.5 6v12M10.5 6v9M13.5 6v12M16.5 6v9M20 6v12"/></symbol>
+
+<!-- ステータス -->
+<symbol id="sk-i-warning" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4L12 4zM12 10v4.5"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/></symbol>
+<symbol id="sk-i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="8" r="0.9" fill="currentColor" stroke="none"/></symbol>
+</svg>
+
+<div class="host sk">
+<div class="stage">
+
+  <header>
+    <div class="sec-label">SUKASHI v2.0 / LIVING STYLE GUIDE</div>
+    <h1 style="font-size:var(--sk-t-large);font-weight:800;line-height:1.2">透かし<span style="color:var(--sk-ink-3)">.</span></h1>
+    <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。</p>
+  </header>
+
+  <div class="panel">
+    <div class="sk-glass inner">
+      <label>intensity</label>
+      <input type="range" class="sk-range" id="gi" min="0" max="100" value="55" style="height:32px">
+      <span class="gival sk-mono" id="gival">0.55</span>
+    </div>
+  </div>
+
+  <section class="sec">
+    <div class="sec-label">ICONS — sukashi icons(タップでコピー)</div>
+    <div class="sk-glass sk-card"><div class="icons-grid"><button class="icell" data-name="search" title="search"><svg class="sk-icon"><use href="#sk-i-search"/></svg><span>search</span></button><button class="icell" data-name="plus" title="plus"><svg class="sk-icon"><use href="#sk-i-plus"/></svg><span>plus</span></button><button class="icell" data-name="minus" title="minus"><svg class="sk-icon"><use href="#sk-i-minus"/></svg><span>minus</span></button><button class="icell" data-name="close" title="close"><svg class="sk-icon"><use href="#sk-i-close"/></svg><span>close</span></button><button class="icell" data-name="check" title="check"><svg class="sk-icon"><use href="#sk-i-check"/></svg><span>check</span></button><button class="icell" data-name="chevron-up" title="chevron-up"><svg class="sk-icon"><use href="#sk-i-chevron-up"/></svg><span>chevron-up</span></button><button class="icell" data-name="chevron-down" title="chevron-down"><svg class="sk-icon"><use href="#sk-i-chevron-down"/></svg><span>chevron-down</span></button><button class="icell" data-name="chevron-left" title="chevron-left"><svg class="sk-icon"><use href="#sk-i-chevron-left"/></svg><span>chevron-left</span></button><button class="icell" data-name="chevron-right" title="chevron-right"><svg class="sk-icon"><use href="#sk-i-chevron-right"/></svg><span>chevron-right</span></button><button class="icell" data-name="arrow-up" title="arrow-up"><svg class="sk-icon"><use href="#sk-i-arrow-up"/></svg><span>arrow-up</span></button><button class="icell" data-name="arrow-down" title="arrow-down"><svg class="sk-icon"><use href="#sk-i-arrow-down"/></svg><span>arrow-down</span></button><button class="icell" data-name="arrow-left" title="arrow-left"><svg class="sk-icon"><use href="#sk-i-arrow-left"/></svg><span>arrow-left</span></button><button class="icell" data-name="arrow-right" title="arrow-right"><svg class="sk-icon"><use href="#sk-i-arrow-right"/></svg><span>arrow-right</span></button><button class="icell" data-name="menu" title="menu"><svg class="sk-icon"><use href="#sk-i-menu"/></svg><span>menu</span></button><button class="icell" data-name="more" title="more"><svg class="sk-icon"><use href="#sk-i-more"/></svg><span>more</span></button><button class="icell" data-name="external" title="external"><svg class="sk-icon"><use href="#sk-i-external"/></svg><span>external</span></button><button class="icell" data-name="home" title="home"><svg class="sk-icon"><use href="#sk-i-home"/></svg><span>home</span></button><button class="icell" data-name="user" title="user"><svg class="sk-icon"><use href="#sk-i-user"/></svg><span>user</span></button><button class="icell" data-name="users" title="users"><svg class="sk-icon"><use href="#sk-i-users"/></svg><span>users</span></button><button class="icell" data-name="bell" title="bell"><svg class="sk-icon"><use href="#sk-i-bell"/></svg><span>bell</span></button><button class="icell" data-name="calendar" title="calendar"><svg class="sk-icon"><use href="#sk-i-calendar"/></svg><span>calendar</span></button><button class="icell" data-name="clock" title="clock"><svg class="sk-icon"><use href="#sk-i-clock"/></svg><span>clock</span></button><button class="icell" data-name="settings" title="settings"><svg class="sk-icon"><use href="#sk-i-settings"/></svg><span>settings</span></button><button class="icell" data-name="star" title="star"><svg class="sk-icon"><use href="#sk-i-star"/></svg><span>star</span></button><button class="icell" data-name="heart" title="heart"><svg class="sk-icon"><use href="#sk-i-heart"/></svg><span>heart</span></button><button class="icell" data-name="eye" title="eye"><svg class="sk-icon"><use href="#sk-i-eye"/></svg><span>eye</span></button><button class="icell" data-name="eye-off" title="eye-off"><svg class="sk-icon"><use href="#sk-i-eye-off"/></svg><span>eye-off</span></button><button class="icell" data-name="lock" title="lock"><svg class="sk-icon"><use href="#sk-i-lock"/></svg><span>lock</span></button><button class="icell" data-name="mail" title="mail"><svg class="sk-icon"><use href="#sk-i-mail"/></svg><span>mail</span></button><button class="icell" data-name="chat" title="chat"><svg class="sk-icon"><use href="#sk-i-chat"/></svg><span>chat</span></button><button class="icell" data-name="share" title="share"><svg class="sk-icon"><use href="#sk-i-share"/></svg><span>share</span></button><button class="icell" data-name="link" title="link"><svg class="sk-icon"><use href="#sk-i-link"/></svg><span>link</span></button><button class="icell" data-name="copy" title="copy"><svg class="sk-icon"><use href="#sk-i-copy"/></svg><span>copy</span></button><button class="icell" data-name="edit" title="edit"><svg class="sk-icon"><use href="#sk-i-edit"/></svg><span>edit</span></button><button class="icell" data-name="trash" title="trash"><svg class="sk-icon"><use href="#sk-i-trash"/></svg><span>trash</span></button><button class="icell" data-name="download" title="download"><svg class="sk-icon"><use href="#sk-i-download"/></svg><span>download</span></button><button class="icell" data-name="upload" title="upload"><svg class="sk-icon"><use href="#sk-i-upload"/></svg><span>upload</span></button><button class="icell" data-name="filter" title="filter"><svg class="sk-icon"><use href="#sk-i-filter"/></svg><span>filter</span></button><button class="icell" data-name="sort" title="sort"><svg class="sk-icon"><use href="#sk-i-sort"/></svg><span>sort</span></button><button class="icell" data-name="refresh" title="refresh"><svg class="sk-icon"><use href="#sk-i-refresh"/></svg><span>refresh</span></button><button class="icell" data-name="folder" title="folder"><svg class="sk-icon"><use href="#sk-i-folder"/></svg><span>folder</span></button><button class="icell" data-name="file" title="file"><svg class="sk-icon"><use href="#sk-i-file"/></svg><span>file</span></button><button class="icell" data-name="image" title="image"><svg class="sk-icon"><use href="#sk-i-image"/></svg><span>image</span></button><button class="icell" data-name="mic" title="mic"><svg class="sk-icon"><use href="#sk-i-mic"/></svg><span>mic</span></button><button class="icell" data-name="play" title="play"><svg class="sk-icon"><use href="#sk-i-play"/></svg><span>play</span></button><button class="icell" data-name="grid" title="grid"><svg class="sk-icon"><use href="#sk-i-grid"/></svg><span>grid</span></button><button class="icell" data-name="chart" title="chart"><svg class="sk-icon"><use href="#sk-i-chart"/></svg><span>chart</span></button><button class="icell" data-name="cart" title="cart"><svg class="sk-icon"><use href="#sk-i-cart"/></svg><span>cart</span></button><button class="icell" data-name="tag" title="tag"><svg class="sk-icon"><use href="#sk-i-tag"/></svg><span>tag</span></button><button class="icell" data-name="package" title="package"><svg class="sk-icon"><use href="#sk-i-package"/></svg><span>package</span></button><button class="icell" data-name="truck" title="truck"><svg class="sk-icon"><use href="#sk-i-truck"/></svg><span>truck</span></button><button class="icell" data-name="barcode" title="barcode"><svg class="sk-icon"><use href="#sk-i-barcode"/></svg><span>barcode</span></button><button class="icell" data-name="warning" title="warning"><svg class="sk-icon"><use href="#sk-i-warning"/></svg><span>warning</span></button><button class="icell" data-name="info" title="info"><svg class="sk-icon"><use href="#sk-i-info"/></svg><span>info</span></button></div></div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">TYPOGRAPHY — HIG整合 / base 17px</div>
+    <div class="sk-glass sk-card stack" style="gap:8px">
+      <div class="type-row"><span class="sz">large 34</span><span style="font-size:var(--sk-t-large);font-weight:800">受注管理</span></div>
+      <div class="type-row"><span class="sz">title1 28</span><span style="font-size:var(--sk-t-title1);font-weight:700">受注管理</span></div>
+      <div class="type-row"><span class="sz">title3 20</span><span style="font-size:var(--sk-t-title3);font-weight:600">受注管理</span></div>
+      <div class="type-row"><span class="sz">body 17</span><span>本文は行間1.6で組む。</span></div>
+      <div class="type-row"><span class="sz">sub 15</span><span style="font-size:var(--sk-t-sub);color:var(--sk-ink-2)">補助説明のテキスト。</span></div>
+      <div class="type-row"><span class="sz">caption 12</span><span style="font-size:var(--sk-t-caption);color:var(--sk-ink-3)">メタ情報・単位</span></div>
+      <div class="type-row"><span class="sz">mono</span><span class="sk-mono" style="font-size:var(--sk-t-title3)">0123456789</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">BUTTONS</div>
+    <div class="stack">
+      <div class="rowx">
+        <button class="sk-btn sk-btn--primary">確定する</button>
+        <button class="sk-glass sk-btn">下書き保存</button>
+        <button class="sk-btn sk-btn--quiet">キャンセル</button>
+      </div>
+      <div class="rowx">
+        <button class="sk-btn sk-btn--primary" disabled>無効状態</button>
+        <button class="sk-glass sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-search"/></svg></button>
+        <button class="sk-glass sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-plus"/></svg></button>
+        <button class="sk-glass sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-more"/></svg></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">FORM CONTROLS</div>
+    <div class="stack">
+      <input class="sk-glass sk-input" placeholder="注文番号・商品名で検索…">
+      <div class="sk-glass sk-select"><select>
+        <option>すべてのモール</option><option>楽天市場</option><option>Amazon</option><option>Yahoo!ショッピング</option>
+      </select></div>
+      <textarea class="sk-glass sk-textarea" placeholder="メモを入力…"></textarea>
+      <div class="sk-glass sk-card stack" style="gap:4px">
+        <div class="rowx" style="justify-content:space-between">
+          <span>自動出荷連携</span>
+          <label class="sk-switch"><input type="checkbox" checked><span class="sk-switch__track"></span></label>
+        </div>
+        <hr class="sk-divider">
+        <label class="sk-check"><input type="checkbox" checked><span class="sk-check__box"></span>在庫連動を有効にする</label>
+        <label class="sk-check"><input type="checkbox"><span class="sk-check__box"></span>通知を受け取る</label>
+        <hr class="sk-divider">
+        <label class="sk-radio"><input type="radio" name="r1" checked><span class="sk-radio__dot"></span>即時反映</label>
+        <label class="sk-radio"><input type="radio" name="r1"><span class="sk-radio__dot"></span>1時間ごと</label>
+        <hr class="sk-divider">
+        <div style="font-size:var(--sk-t-caption);color:var(--sk-ink-2)">しきい値</div>
+        <input type="range" class="sk-range" min="0" max="100" value="30">
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">SELECTION & META</div>
+    <div class="stack">
+      <div class="sk-glass sk-seg" role="tablist">
+        <button class="sk-seg__item is-on">今日</button>
+        <button class="sk-seg__item">週間</button>
+        <button class="sk-seg__item">月間</button>
+      </div>
+      <div class="rowx">
+        <span class="sk-chip sk-chip--accent">前日比 +4.2%</span>
+        <span class="sk-glass sk-chip">自動連携中</span>
+        <span class="sk-badge">3</span>
+        <span class="sk-badge sk-badge--danger">9+</span>
+        <span class="sk-avatar">SZ</span>
+        <span class="sk-avatar sk-avatar--s">NE</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">LIST & TABLE</div>
+    <div class="stack">
+      <div class="sk-glass sk-card">
+        <div class="sk-row">
+          <svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-package"/></svg>
+          <div class="sk-row__main">未出荷<div style="font-size:var(--sk-t-caption);color:var(--sk-ink-3)">要対応</div></div>
+          <span class="sk-badge">12</span>
+          <svg class="sk-icon sk-icon--s" style="color:var(--sk-ink-3)"><use href="#sk-i-chevron-right"/></svg>
+        </div>
+        <div class="sk-row">
+          <svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-truck"/></svg>
+          <div class="sk-row__main">出荷済み</div>
+          <span class="sk-row__value sk-mono">248</span>
+          <svg class="sk-icon sk-icon--s" style="color:var(--sk-ink-3)"><use href="#sk-i-chevron-right"/></svg>
+        </div>
+      </div>
+      <div class="sk-glass sk-card">
+        <table class="sk-table">
+          <thead><tr><th>モール</th><th style="text-align:right">受注</th><th style="text-align:right">売上</th></tr></thead>
+          <tbody>
+            <tr><td>楽天市場</td><td class="sk-mono" data-num>1,204</td><td class="sk-mono" data-num>¥4.2M</td></tr>
+            <tr><td>Amazon</td><td class="sk-mono" data-num>986</td><td class="sk-mono" data-num>¥3.1M</td></tr>
+            <tr><td>Shopify</td><td class="sk-mono" data-num>550</td><td class="sk-mono" data-num>¥1.8M</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">FEEDBACK</div>
+    <div class="sk-glass sk-card stack">
+      <div class="rowx" style="justify-content:space-between">
+        <span style="font-size:var(--sk-t-sub)">同期処理</span><span class="sk-mono" style="font-size:var(--sk-t-caption);color:var(--sk-ink-2)">68%</span>
+      </div>
+      <div class="sk-progress"><i style="width:68%"></i></div>
+      <div class="rowx">
+        <div class="sk-spinner"></div>
+        <div class="sk-skeleton" style="height:16px;flex:1"></div>
+        <div class="sk-skeleton" style="width:60px;height:16px"></div>
+      </div>
+      <hr class="sk-divider">
+      <div class="sk-empty" style="padding:16px">
+        <svg class="sk-icon"><use href="#sk-i-folder"/></svg>
+        <div style="font-size:var(--sk-t-sub)">まだデータがありません</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">OVERLAYS</div>
+    <div class="rowx">
+      <button class="sk-glass sk-btn" id="open-modal">モーダル</button>
+      <button class="sk-glass sk-btn" id="open-sheet">シート</button>
+      <button class="sk-glass sk-btn" id="open-toast">トースト</button>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<!-- タブバー -->
+<nav class="sk-glass sk-tabbar sk">
+  <button class="sk-tabbar__item is-on"><svg class="sk-icon sk-icon--s"><use href="#sk-i-home"/></svg>ホーム</button>
+  <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-cart"/></svg>受注</button>
+  <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-chart"/></svg>分析</button>
+  <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-settings"/></svg>設定</button>
+</nav>
+
+<!-- オーバーレイ実体 -->
+<div class="sk-scrim" id="scrim"></div>
+<div class="sk-glass sk-modal sk" id="modal">
+  <h2 style="font-size:var(--sk-t-title2);font-weight:700;margin-bottom:8px">確認</h2>
+  <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-bottom:20px">選択した12件の注文を出荷確定します。よろしいですか?</p>
+  <div style="display:flex;gap:10px">
+    <button class="sk-glass sk-btn" style="flex:1" data-close>やめる</button>
+    <button class="sk-btn sk-btn--primary" style="flex:1" data-close>確定する</button>
+  </div>
+</div>
+<div class="sk-glass sk-sheet sk" id="sheet">
+  <div class="sk-sheet__grip"></div>
+  <h2 style="font-size:var(--sk-t-title3);font-weight:700;margin-bottom:6px">絞り込み</h2>
+  <div class="sk-row"><div class="sk-row__main">未出荷のみ</div>
+    <label class="sk-switch"><input type="checkbox" checked><span class="sk-switch__track"></span></label></div>
+  <div class="sk-row"><div class="sk-row__main">ギフト指定あり</div>
+    <label class="sk-switch"><input type="checkbox"><span class="sk-switch__track"></span></label></div>
+  <button class="sk-btn sk-btn--primary" style="width:100%;margin-top:16px" data-close>適用する</button>
+</div>
+<div class="sk-glass sk-toast sk" id="toast">
+  <svg class="sk-icon sk-icon--s"><use href="#sk-i-check"/></svg>コピーしました
+</div>
+
+<script>
+var gi = document.getElementById('gi'), gival = document.getElementById('gival');
+gi.addEventListener('input', function() {
+  var v = gi.value / 100;
+  document.documentElement.style.setProperty('--gi', v);
+  gival.textContent = v.toFixed(2);
+});
+document.querySelectorAll('.sk-seg__item').forEach(function(s){ s.addEventListener('click', function(){
+  s.parentElement.querySelectorAll('.sk-seg__item').forEach(function(x){ x.classList.remove('is-on'); });
+  s.classList.add('is-on');
+});});
+document.querySelectorAll('.sk-tabbar__item').forEach(function(s){ s.addEventListener('click', function(){
+  s.parentElement.querySelectorAll('.sk-tabbar__item').forEach(function(x){ x.classList.remove('is-on'); });
+  s.classList.add('is-on');
+});});
+
+var scrim = document.getElementById('scrim');
+var modal = document.getElementById('modal');
+var sheet = document.getElementById('sheet');
+var toast = document.getElementById('toast');
+var toastTimer = null;
+function openOv(el){ scrim.classList.add('is-open'); el.classList.add('is-open'); }
+function closeAll(){ scrim.classList.remove('is-open');
+  modal.classList.remove('is-open'); sheet.classList.remove('is-open'); }
+document.getElementById('open-modal').addEventListener('click', function(){ openOv(modal); });
+document.getElementById('open-sheet').addEventListener('click', function(){ openOv(sheet); });
+scrim.addEventListener('click', closeAll);
+document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeAll); });
+function showToast(msg){
+  toast.lastChild.textContent = msg;
+  toast.classList.add('is-show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toast.classList.remove('is-show'); }, 1800);
+}
+document.getElementById('open-toast').addEventListener('click', function(){ showToast('保存しました'); });
+document.querySelectorAll('.icell').forEach(function(c){ c.addEventListener('click', function(){
+  var name = 'sk-i-' + c.dataset.name;
+  if (navigator.clipboard) navigator.clipboard.writeText(name);
+  showToast(name + ' をコピー');
+});});
+</script>
+</body>
+</html>
