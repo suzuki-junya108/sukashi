@@ -1,10 +1,11 @@
 /* ==========================================================================
-   sukashi(透かし)v2.0 — フルセット
+   sukashi(透かし)v2.1 — フルセット(+ダークモード / カテゴリ識別色)
    Liquid Glass 系・Web 汎用デザインシステム
    原則:
    1. グラデーション不使用(装飾も材質も)。材質は blur / saturate / 実線ヘアラインのみ
    2. システムは背景を持たない。全部材は透明で、ホスト側の背景の上に置く
    3. 透明度は単一変数 --gi(0=clear 〜 1=tinted)で全連動(iOS 27 の intensity 思想)
+   v2.1 拡張(末尾セクション参照):憲法を保ったまま暗下地対応と識別色を追加。
    ========================================================================== */
 
 :root {
@@ -324,7 +325,7 @@
 .sk-switch__track::after {
   content: ""; position: absolute; top: 2px; left: 2px;
   width: 27px; height: 27px; border-radius: 50%;
-  background: #fff;
+  background: var(--sk-on-accent);   /* つまみは accent 面上の図。反転時も消えないよう on-accent */
   box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06), 0 3px 8px rgba(0,0,0,0.18);
   transition: transform var(--sk-dur-2) var(--sk-spring);
 }
@@ -347,7 +348,8 @@
 .sk-check__box::after {
   content: ""; position: absolute; left: 7px; top: 3.5px;
   width: 6px; height: 11px;
-  border-right: 2px solid #fff; border-bottom: 2px solid #fff;
+  border-right: 2px solid var(--sk-on-accent);   /* accent 面上のチェック。反転時も消えないよう on-accent */
+  border-bottom: 2px solid var(--sk-on-accent);
   transform: rotate(45deg) scale(0);
   transition: transform var(--sk-dur-1) var(--sk-spring);
 }
@@ -546,4 +548,94 @@
 .sk-tabbar__item.is-on {
   color: var(--sk-ink); background: rgba(var(--sk-tint), 0.55);
   box-shadow: inset 0 1px 0 var(--sk-edge-spec), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+/* ==========================================================================
+   v2.1 拡張 — ダークモード / カテゴリ識別色
+   拡張の原則:憲法(モノクローム・グラデ無し・ガラスはクローム・面に色を塗らない)を維持。
+   - ダーク: 白固定を破らず「暗下地版」を .sk-dark で opt-in。既定(白)は不変=後方互換。
+   - 識別色: 状態色(danger/ok)とは別枠の識別専用色。glyph/ドット/リードバーのみに使い、
+     面(background)へは塗らない — 塗る入口(fill クラス)を提供しないことで憲法を担保する。
+   ========================================================================== */
+
+/* --- ダーク下地トークン(明→暗の反転)。要素かその祖先に .sk-dark を付けて opt-in --- */
+.sk-dark {
+  --sk-tint: 30, 32, 38;               /* ガラス地色: 白 → 暗 */
+  --sk-ink-rgb: 236, 238, 243;         /* インク: 暗 → 明(hairline/fill も自動追従) */
+
+  /* エッジ2本: 外周は暗背景に対する微光リム、上辺スペキュラは控えめの白 */
+  --sk-edge-dark: rgba(255, 255, 255, calc(0.10 + var(--gi) * 0.06));
+  --sk-edge-spec: rgba(255, 255, 255, calc(0.30 - var(--gi) * 0.14));
+
+  /* プライマリーはモノクロームのまま反転(黒 → 近白)、面上の図は暗 */
+  --sk-accent:    #F5F6F8;
+  --sk-on-accent: #16181D;
+
+  /* 意味色は暗背景で沈まないよう一段明るく */
+  --sk-danger: #FF6B5C;
+  --sk-ok:     #46C46E;
+
+  /* 影は暗背景では効きにくいので濃く */
+  --sk-shadow: 0 10px 30px rgba(0, 0, 0, calc(0.34 + var(--gi) * 0.16));
+}
+
+/* OS のダーク設定に追従したい場合のみ .sk-auto を付与(既定は白固定=不変)。
+   ※ .sk-dark と同値を保つこと(プレーン CSS では宣言ブロックを共有できないため複製)。 */
+@media (prefers-color-scheme: dark) {
+  .sk-auto {
+    --sk-tint: 30, 32, 38;
+    --sk-ink-rgb: 236, 238, 243;
+    --sk-edge-dark: rgba(255, 255, 255, calc(0.10 + var(--gi) * 0.06));
+    --sk-edge-spec: rgba(255, 255, 255, calc(0.30 - var(--gi) * 0.14));
+    --sk-accent:    #F5F6F8;
+    --sk-on-accent: #16181D;
+    --sk-danger: #FF6B5C;
+    --sk-ok:     #46C46E;
+    --sk-shadow: 0 10px 30px rgba(0, 0, 0, calc(0.34 + var(--gi) * 0.16));
+  }
+}
+
+/* --- カテゴリ識別色(8色)。状態色とは別枠。面には塗らない --- */
+:root {
+  --sk-cat-1: #2F7FF0;  /* blue   */
+  --sk-cat-2: #14B8A6;  /* teal   */
+  --sk-cat-3: #1AA860;  /* green  */
+  --sk-cat-4: #E0A020;  /* amber  */
+  --sk-cat-5: #F0691E;  /* orange */
+  --sk-cat-6: #E5396B;  /* pink   */
+  --sk-cat-7: #8B5CF6;  /* purple */
+  --sk-cat-8: #64748B;  /* slate  */
+}
+/* 暗背景では沈むため一段明るい版へ差し替え(.sk-dark と .sk-auto で同値) */
+.sk-dark {
+  --sk-cat-1: #5AA0FF; --sk-cat-2: #3FD3C1; --sk-cat-3: #46C46E; --sk-cat-4: #F0BC4E;
+  --sk-cat-5: #FF8A4C; --sk-cat-6: #FF6088; --sk-cat-7: #A98BFF; --sk-cat-8: #94A3B8;
+}
+@media (prefers-color-scheme: dark) {
+  .sk-auto {
+    --sk-cat-1: #5AA0FF; --sk-cat-2: #3FD3C1; --sk-cat-3: #46C46E; --sk-cat-4: #F0BC4E;
+    --sk-cat-5: #FF8A4C; --sk-cat-6: #FF6088; --sk-cat-7: #A98BFF; --sk-cat-8: #94A3B8;
+  }
+}
+
+/* 識別色を適用する唯一の入口。color を差し替え、currentColor 経由で
+   アイコン(stroke)・ドット・リードバー・ラベルへ伝わる。背景色クラスは意図的に無し。 */
+.sk-cat-1 { color: var(--sk-cat-1); }
+.sk-cat-2 { color: var(--sk-cat-2); }
+.sk-cat-3 { color: var(--sk-cat-3); }
+.sk-cat-4 { color: var(--sk-cat-4); }
+.sk-cat-5 { color: var(--sk-cat-5); }
+.sk-cat-6 { color: var(--sk-cat-6); }
+.sk-cat-7 { color: var(--sk-cat-7); }
+.sk-cat-8 { color: var(--sk-cat-8); }
+
+/* カテゴリ・ドット(8px の点。面ではなくマークとして扱う) */
+.sk-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; background: currentColor; flex-shrink: 0;
+}
+/* カテゴリ・リードバー(3px の縦バー。行/カード左端の識別。面塗りの代替) */
+.sk-catbar {
+  width: 3px; align-self: stretch; min-height: 1em;
+  border-radius: 2px; background: currentColor; flex-shrink: 0;
 }

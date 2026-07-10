@@ -1,10 +1,12 @@
-# sukashi(透かし)デザインシステム v2.0 — フルセット
+# sukashi(透かし)デザインシステム v2.1 — フルセット
 
 Liquid Glass 系の材質を、Web サービスで汎用に使える形へ翻訳したデザインシステム。名称は透かし彫りから。CLI ツール群と同じ「〜ai」ではないが、透明であることをそのまま名に持つ。
 
 ## 基本姿勢
 
-下地は**白(#FFFFFF)固定**。ガラスは白の上でエッジと影だけで層を語り、黒プライマリーとの組み合わせでモノクロームの計器盤になる。白固定に伴い、外周ダークエッジの下限を 0.13 に引き上げて白 on 白の輪郭を保証している。ダーク下地サポートは本体から外した(必要になれば v2 で `.sk-dark` を再導入)。
+下地は**白(#FFFFFF)が既定**。ガラスは白の上でエッジと影だけで層を語り、黒プライマリーとの組み合わせでモノクロームの計器盤になる。白既定に伴い、外周ダークエッジの下限を 0.13 に引き上げて白 on 白の輪郭を保証している。
+
+v2.1 で**暗下地版を `.sk-dark` として opt-in で追加**した(§ダークモード)。既定は白のままなので後方互換。憲法(モノクローム・グラデ無し・ガラスはクローム)は暗下地でもそのまま成立する — トークンを反転させるだけで材質定義 `.sk-glass` は一切変えていない。
 
 ## 制約(このシステムの憲法)
 
@@ -46,12 +48,47 @@ Liquid Glass 系の材質を、Web サービスで汎用に使える形へ翻訳
 - `@supports` で backdrop-filter 非対応ブラウザにも同様のフォールバック。
 - `prefers-reduced-motion` で全モーション停止。
 - ガラス上の文字コントラストは下地依存で保証できないため、`--gi < 0.5` の運用ではガラス上に本文級の長文を置かないこと(見出し・数値・ラベルまで)。
+- 識別色(`--sk-cat-*`)はアイコン・ドット・リードバー・短いラベルに限定し、**本文級の長文には使わない**。暗下地では沈むため `.sk-dark` で一段明るい版へ自動差し替えしている。
 
-## コンポーネント一覧(v2.0)
+## ダークモード(v2.1)
+
+`.sk-dark` を要素かその祖先に付けると、その配下だけ暗下地版になる。既定(付けない状態)は白のままなので後方互換。
+
+- **材質は不変。** `.sk-glass` の定義は変えず、`.sk-dark` が参照トークン(`--sk-tint` / `--sk-ink-rgb` / エッジ / 影 / accent)を反転するだけ。`--sk-hairline` / `--sk-fill-*` は `--sk-ink-rgb` 由来なので自動追従する。
+- **プライマリーはモノクロームのまま反転。** 黒(`#111418`)→ 近白(`#F5F6F8`)。面上の図(スイッチのつまみ・チェック)は `--sk-on-accent` を参照するため反転時も消えない。
+- **外周リムは反転。** 白下地では黒の外周エッジ、暗下地では微光(白低アルファ)の外周リムで輪郭を出す。
+- **OS 追従は opt-in。** 既定でシステムのダーク設定に従わせたい場合のみ `.sk-auto` を付与する(`@media (prefers-color-scheme: dark)`)。無指定なら白固定を維持。
+- 意味色(`--sk-danger` / `--sk-ok`)は暗背景で沈まないよう一段明るい値へ差し替える。
+
+```html
+<body class="sk sk-dark">        <!-- 配下すべてが暗下地版 -->
+<div class="host sk sk-auto">     <!-- OS のダーク設定に追従 -->
+```
+
+## カテゴリ識別色(v2.1)
+
+種別・タグ・チャンネルなど**N 分類を区別するための識別専用色**。状態色(danger/ok)とは別枠で、憲法「面に色を塗らない」を破らないよう**適用先を glyph / ドット / リードバーに限定**する。
+
+- トークンは `--sk-cat-1`〜`--sk-cat-8`(8色)。暗下地では `.sk-dark` / `.sk-auto` で明るい版へ差し替え。
+- **色の入口は `.sk-cat-1`〜`.sk-cat-8` のみ**で、これは `color` を差し替えるだけ。`currentColor` 経由でアイコン(stroke)・`.sk-dot`・`.sk-catbar`・短ラベルへ伝わる。
+- **背景色クラスは意図的に提供しない。** 面を塗る手段が無いこと自体で憲法を担保する。カード/行/チップの面は無彩のまま、色は「点(`.sk-dot`)」と「3px の縦線(`.sk-catbar`)」とアイコンにだけ乗る。
+- 一覧での使い方: 行の左端に `.sk-catbar`、種別アイコンに `.sk-cat-N`、チップ内に `.sk-dot`。面はガラス/無彩を維持する。
+
+```html
+<div class="sk-row">
+  <span class="sk-catbar sk-cat-6"></span>            <!-- 左端の識別バー -->
+  <svg class="sk-icon sk-cat-6"><use href="#sk-i-heart"/></svg>
+  <div class="sk-row__main">Design</div>
+  <span class="sk-glass sk-chip"><span class="sk-dot sk-cat-6"></span>tag</span>
+</div>
+```
+
+## コンポーネント一覧(v2.1)
 
 **操作**: `.sk-btn`(--primary / --quiet / :disabled)、`.sk-iconbtn`、`.sk-seg`(セグメンテッド)、`.sk-tabbar`(下部固定・セーフエリア対応)
 **フォーム**: `.sk-input`、`.sk-select`、`.sk-textarea`、`.sk-switch`(51×31 iOS寸法)、`.sk-check`、`.sk-radio`、`.sk-range`
-**表示**: `.sk-card`、`.sk-toolbar`(+ `.is-scrolled`)、`.sk-row`、`.sk-table`、`.sk-chip`(--accent は黒塗り)、`.sk-badge`(--danger)、`.sk-avatar`、`.sk-divider`
+**表示**: `.sk-card`、`.sk-toolbar`(+ `.is-scrolled`)、`.sk-row`、`.sk-table`、`.sk-chip`(--accent は黒塗り)、`.sk-badge`(--danger)、`.sk-avatar`、`.sk-divider`、`.sk-dot` / `.sk-catbar`(識別色マーク)
+**テーマ**: `.sk-dark`(暗下地・opt-in)、`.sk-auto`(OS 追従)、識別色 `.sk-cat-1`〜`.sk-cat-8`
 **フィードバック**: `.sk-progress`、`.sk-spinner`、`.sk-skeleton`(グラデ禁止のため shimmer ではなく脈動)、`.sk-empty`、`.sk-toast`
 **オーバーレイ**: `.sk-scrim` + `.sk-modal` / `.sk-sheet`(いずれも `.is-open` で開閉、z-index はトークン管理)
 
@@ -71,6 +108,8 @@ Liquid Glass 系の材質を、Web サービスで汎用に使える形へ翻訳
 - `sukashi-icons.svg` — アイコンスプライト
 - `showcase.html` — 全部材+アイコン一覧のリビングスタイルガイド(intensity 連動、アイコン名タップコピー)
 
-## v1.1 検討
+## 今後の検討
 
-ダークモード(.sk-dark)の再導入、ポップオーバー/ツールチップ、日付ピッカー、`.is-scrolled` 自動付与のミニ JS、Tailwind preset / React コンポーネントへの転写、アイコンの追加(ラジオ・園芸・調理など個人アプリ向けセット)。
+ポップオーバー/ツールチップ、日付ピッカー、`.is-scrolled` 自動付与のミニ JS、Tailwind preset / React コンポーネントへの転写、SwiftUI(ネイティブ)への転写、アイコンの追加(ラジオ・園芸・調理など個人アプリ向けセット)。
+
+> v2.1 で対応済み: ダークモード(`.sk-dark`)の再導入、カテゴリ識別色(`.sk-cat-*`)。
