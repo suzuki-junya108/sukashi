@@ -34,6 +34,7 @@ jobs:
           # 単体配布用アセットもそのまま公開する
           cp sukashi.css _site/sukashi.css
           cp sukashi-icons.svg _site/sukashi-icons.svg
+          cp favicon.svg _site/favicon.svg
 
       - uses: actions/configure-pages@v5
 
