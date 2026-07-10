@@ -1,11 +1,13 @@
 /* ==========================================================================
-   sukashi(透かし)v2.1 — フルセット(+ダークモード / カテゴリ識別色)
+   sukashi(透かし)v2.2 — フルセット(+ダークモード / カテゴリ識別色 / 実アプリ部材)
    Liquid Glass 系・Web 汎用デザインシステム
    原則:
    1. グラデーション不使用(装飾も材質も)。材質は blur / saturate / 実線ヘアラインのみ
    2. システムは背景を持たない。全部材は透明で、ホスト側の背景の上に置く
    3. 透明度は単一変数 --gi(0=clear 〜 1=tinted)で全連動(iOS 27 の intensity 思想)
-   v2.1 拡張(末尾セクション参照):憲法を保ったまま暗下地対応と識別色を追加。
+   v2.1 拡張:憲法を保ったまま暗下地対応と識別色を追加。
+   v2.2 拡張(末尾セクション参照):実アプリ由来の部材(通知 / フォーム解剖学 /
+   メニュー / サイドナビ / ステッパー / コード表示)とコントラスト強化を追加。
    ========================================================================== */
 
 :root {
@@ -638,4 +640,176 @@
 .sk-catbar {
   width: 3px; align-self: stretch; min-height: 1em;
   border-radius: 2px; background: currentColor; flex-shrink: 0;
+}
+
+/* ==========================================================================
+   v2.2 拡張 — 実アプリ部材
+   拡張の原則: 憲法維持。不透明例外に .sk-btn--danger(破壊的な確定操作)を追加 —
+   primary と同じ「確定系は透けさせない」の理屈。意味色は増やさない:
+   警告(注意・要確認)は danger に集約する(第3の意味色 amber は持たない)。
+   ========================================================================== */
+
+/* --- インライン通知(コールアウト)。トーストと違い置きっぱなしにする部材。
+   面は無彩ガラスのまま、意味色は左端バーとアイコンにだけ乗せる --- */
+.sk-notice {
+  --sk-notice-c: var(--sk-ink-2);            /* 既定 = info(無彩) */
+  position: relative;
+  display: flex; align-items: flex-start; gap: var(--sk-sp-2);
+  padding: var(--sk-sp-3) var(--sk-sp-4);
+  border-radius: var(--sk-r-m);
+  font-size: var(--sk-t-sub);
+  overflow: hidden;
+}
+.sk-notice::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--sk-notice-c);
+}
+.sk-notice > .sk-icon {
+  width: var(--sk-icon-s); height: var(--sk-icon-s);
+  margin-top: 3px; color: var(--sk-notice-c);
+}
+.sk-notice--ok     { --sk-notice-c: var(--sk-ok); }
+.sk-notice--danger { --sk-notice-c: var(--sk-danger); }
+
+/* --- 破壊的な確定操作(削除・取り消し不能)。不透明例外の4つ目 --- */
+.sk-btn--danger {
+  background: var(--sk-danger); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), var(--sk-shadow);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+
+/* --- フォームの解剖学: ラベル+入力+ヘルプ/エラー。
+   エラー入力は .is-invalid か aria-invalid="true"(a11y のため aria 併用を推奨し、
+   エラー文には id を付けて aria-describedby で結ぶ) --- */
+.sk-field { display: block; }
+.sk-field + .sk-field { margin-top: var(--sk-sp-4); }
+.sk-field__label {
+  display: block; font-size: var(--sk-t-foot); font-weight: 600;
+  color: var(--sk-ink-2); margin-bottom: var(--sk-sp-1);
+}
+.sk-field__help  { font-size: var(--sk-t-foot); color: var(--sk-ink-3); margin-top: var(--sk-sp-1); }
+.sk-field__error { font-size: var(--sk-t-foot); font-weight: 600; color: var(--sk-danger); margin-top: var(--sk-sp-1); }
+.sk-input.is-invalid, .sk-input[aria-invalid="true"],
+.sk-textarea.is-invalid, .sk-textarea[aria-invalid="true"] {
+  outline: 1.5px solid var(--sk-danger); outline-offset: 0;
+}
+
+/* 無効・読み取り専用の入力 */
+.sk-input:disabled, .sk-textarea:disabled, .sk-select select:disabled {
+  opacity: 0.45; cursor: not-allowed;
+}
+.sk-input:read-only:not(:disabled),
+.sk-textarea:read-only:not(:disabled) { color: var(--sk-ink-2); }
+
+/* --- ドロップダウン/コンテキストメニュー。position:relative な親に置き .is-open で開く。
+   フォーカストラップ・Esc 閉じ・外側クリックはホスト側の責務(→ DESIGN_SYSTEM.md) --- */
+.sk-menu {
+  position: absolute; min-width: 200px;
+  z-index: calc(var(--sk-z-toolbar) + 10);
+  padding: var(--sk-pad);
+  border-radius: var(--sk-r-m);
+  transform-origin: top;
+  transform: scale(0.96) translateY(-4px); opacity: 0; pointer-events: none;
+  transition: transform var(--sk-dur-1) var(--sk-spring),
+              opacity var(--sk-dur-1) var(--sk-ease);
+}
+.sk-menu.is-open { transform: none; opacity: 1; pointer-events: auto; }
+.sk-menu__item {
+  display: flex; align-items: center; gap: var(--sk-sp-2);
+  width: 100%; min-height: 36px; padding: 0 var(--sk-sp-3);
+  border: none; background: transparent; cursor: pointer;
+  border-radius: calc(var(--sk-r-m) - var(--sk-pad));   /* 同心円 */
+  font: var(--sk-t-sub)/1 var(--sk-font);
+  color: var(--sk-ink); text-align: left; text-decoration: none;
+}
+.sk-menu__item:hover { background: var(--sk-fill-1); }
+.sk-menu__item--danger { color: var(--sk-danger); }
+
+/* --- デスクトップ用サイドナビ。選択状態は seg / tabbar と同じ「塗りでなく形」 --- */
+.sk-sidenav {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--sk-pad); border-radius: var(--sk-r-l);
+}
+.sk-sidenav__item {
+  display: flex; align-items: center; gap: var(--sk-sp-3);
+  min-height: 40px; padding: 0 var(--sk-sp-3);
+  border: none; background: transparent; cursor: pointer;
+  border-radius: calc(var(--sk-r-l) - var(--sk-pad));   /* 同心円 */
+  font: 600 var(--sk-t-sub)/1 var(--sk-font);
+  color: var(--sk-ink-2); text-decoration: none;
+  transition: background var(--sk-dur-2) var(--sk-ease),
+              color var(--sk-dur-2) var(--sk-ease);
+}
+.sk-sidenav__item:hover { background: var(--sk-fill-1); }
+.sk-sidenav__item.is-on, .sk-sidenav__item[aria-current="page"] {
+  color: var(--sk-ink);
+  background: rgba(var(--sk-tint), 0.55);
+  box-shadow: inset 0 1px 0 var(--sk-edge-spec), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+/* --- インラインコード・確認コード・ショートカット(無彩フィルのみ) --- */
+.sk-code {
+  font-family: var(--sk-mono); font-variant-numeric: tabular-nums;
+  font-size: 0.88em; padding: 2px 7px; border-radius: 6px;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline);
+}
+.sk-code--l {                       /* 認証コード等の大表示 */
+  display: inline-block; font-size: var(--sk-t-title3); font-weight: 600;
+  letter-spacing: 0.12em; padding: var(--sk-sp-2) var(--sk-sp-4);
+  border-radius: var(--sk-r-s);
+}
+.sk-kbd {
+  font: 600 var(--sk-t-caption)/1 var(--sk-mono);
+  padding: 3px 7px; border-radius: 6px;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline), inset 0 -1.5px 0 var(--sk-hairline);
+}
+
+/* --- ステッパー(ウィザード進行)。点・線・数字のみ。
+   現在ステップの accent 円は badge と同じ「強調は透けさせない」枠 --- */
+.sk-steps { display: flex; align-items: center; gap: var(--sk-sp-2); }
+.sk-steps__item {
+  display: flex; align-items: center; gap: var(--sk-sp-2);
+  font: 600 var(--sk-t-foot)/1 var(--sk-font); color: var(--sk-ink-3);
+}
+.sk-steps__dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; flex-shrink: 0;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 1px var(--sk-hairline);
+  font: 700 var(--sk-t-caption)/1 var(--sk-mono); color: var(--sk-ink-2);
+}
+.sk-steps__item.is-on { color: var(--sk-ink); }
+.sk-steps__item.is-on .sk-steps__dot {
+  background: var(--sk-accent); color: var(--sk-on-accent); box-shadow: none;
+}
+.sk-steps__item.is-done { color: var(--sk-ink-2); }
+.sk-steps__item.is-done .sk-steps__dot { background: var(--sk-fill-2); box-shadow: none; }
+.sk-steps__line { flex: 1; min-width: 16px; height: 1.5px; background: var(--sk-hairline); }
+
+/* --- タイポグラフィユーティリティ(サイズ・太さのみ。色は持たない) --- */
+.sk-t-large  { font-size: var(--sk-t-large);  font-weight: 800; line-height: 1.25; }
+.sk-t-title1 { font-size: var(--sk-t-title1); font-weight: 700; line-height: 1.3; }
+.sk-t-title2 { font-size: var(--sk-t-title2); font-weight: 700; line-height: 1.35; }
+.sk-t-title3 { font-size: var(--sk-t-title3); font-weight: 600; line-height: 1.4; }
+.sk-t-body   { font-size: var(--sk-t-body); }
+.sk-t-sub    { font-size: var(--sk-t-sub); }
+.sk-t-foot   { font-size: var(--sk-t-foot); }
+.sk-t-caption{ font-size: var(--sk-t-caption); }
+
+/* --- コントラスト強化(OS の「コントラストを上げる」)。
+   ink の中間段とヘアライン・エッジを引き上げる。--sk-ink-2/3 は :root 定義でも
+   参照先 --sk-ink-rgb が使用側で解決されるため .sk-dark 配下にも自動で効く --- */
+@media (prefers-contrast: more) {
+  :root {
+    --sk-ink-2: rgba(var(--sk-ink-rgb), 0.78);
+    --sk-ink-3: rgba(var(--sk-ink-rgb), 0.56);
+    --sk-hairline: rgba(var(--sk-ink-rgb), 0.28);
+    --sk-edge-dark: rgba(0, 0, 0, 0.45);
+  }
+  .sk-dark { --sk-edge-dark: rgba(255, 255, 255, 0.40); }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  .sk-auto { --sk-edge-dark: rgba(255, 255, 255, 0.40); }
 }

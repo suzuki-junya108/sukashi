@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>sukashi v2.1 — living style guide</title>
+<title>sukashi v2.2 — living style guide</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPCEtLSBzdWthc2hpOiDnmb3kuIvlnLDjg7vpu5Ljg5fjg6njgqTjg57jg6rjg7vlrp/nt5rjg5jjgqLjg6njgqTjg7Pjg7vjgIzpgI/jgYvjgZcu44CN44Gu44OJ44OD44OIIC0tPgogIDxyZWN0IHg9IjEuNSIgeT0iMS41IiB3aWR0aD0iMjkiIGhlaWdodD0iMjkiIHJ4PSI4IiBmaWxsPSIjZmZmZmZmIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSI4IiB5MT0iMTIiIHgyPSIyNCIgeTI9IjEyIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8bGluZSB4MT0iOCIgeTE9IjE3IiB4Mj0iMTkiIHkyPSIxNyIgc3Ryb2tlPSIjMTExMTExIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGNpcmNsZSBjeD0iMjIuNSIgY3k9IjIyLjUiIHI9IjMiIGZpbGw9IiMxMTExMTEiLz4KPC9zdmc+Cg==">
 <style>
 /* ==========================================================================
@@ -611,6 +611,178 @@
   border-radius: 2px; background: currentColor; flex-shrink: 0;
 }
 
+/* ==========================================================================
+   v2.2 拡張 — 実アプリ部材
+   拡張の原則: 憲法維持。不透明例外に .sk-btn--danger(破壊的な確定操作)を追加 —
+   primary と同じ「確定系は透けさせない」の理屈。意味色は増やさない:
+   警告(注意・要確認)は danger に集約する(第3の意味色 amber は持たない)。
+   ========================================================================== */
+
+/* --- インライン通知(コールアウト)。トーストと違い置きっぱなしにする部材。
+   面は無彩ガラスのまま、意味色は左端バーとアイコンにだけ乗せる --- */
+.sk-notice {
+  --sk-notice-c: var(--sk-ink-2);            /* 既定 = info(無彩) */
+  position: relative;
+  display: flex; align-items: flex-start; gap: var(--sk-sp-2);
+  padding: var(--sk-sp-3) var(--sk-sp-4);
+  border-radius: var(--sk-r-m);
+  font-size: var(--sk-t-sub);
+  overflow: hidden;
+}
+.sk-notice::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--sk-notice-c);
+}
+.sk-notice > .sk-icon {
+  width: var(--sk-icon-s); height: var(--sk-icon-s);
+  margin-top: 3px; color: var(--sk-notice-c);
+}
+.sk-notice--ok     { --sk-notice-c: var(--sk-ok); }
+.sk-notice--danger { --sk-notice-c: var(--sk-danger); }
+
+/* --- 破壊的な確定操作(削除・取り消し不能)。不透明例外の4つ目 --- */
+.sk-btn--danger {
+  background: var(--sk-danger); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), var(--sk-shadow);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+
+/* --- フォームの解剖学: ラベル+入力+ヘルプ/エラー。
+   エラー入力は .is-invalid か aria-invalid="true"(a11y のため aria 併用を推奨し、
+   エラー文には id を付けて aria-describedby で結ぶ) --- */
+.sk-field { display: block; }
+.sk-field + .sk-field { margin-top: var(--sk-sp-4); }
+.sk-field__label {
+  display: block; font-size: var(--sk-t-foot); font-weight: 600;
+  color: var(--sk-ink-2); margin-bottom: var(--sk-sp-1);
+}
+.sk-field__help  { font-size: var(--sk-t-foot); color: var(--sk-ink-3); margin-top: var(--sk-sp-1); }
+.sk-field__error { font-size: var(--sk-t-foot); font-weight: 600; color: var(--sk-danger); margin-top: var(--sk-sp-1); }
+.sk-input.is-invalid, .sk-input[aria-invalid="true"],
+.sk-textarea.is-invalid, .sk-textarea[aria-invalid="true"] {
+  outline: 1.5px solid var(--sk-danger); outline-offset: 0;
+}
+
+/* 無効・読み取り専用の入力 */
+.sk-input:disabled, .sk-textarea:disabled, .sk-select select:disabled {
+  opacity: 0.45; cursor: not-allowed;
+}
+.sk-input:read-only:not(:disabled),
+.sk-textarea:read-only:not(:disabled) { color: var(--sk-ink-2); }
+
+/* --- ドロップダウン/コンテキストメニュー。position:relative な親に置き .is-open で開く。
+   フォーカストラップ・Esc 閉じ・外側クリックはホスト側の責務(→ DESIGN_SYSTEM.md) --- */
+.sk-menu {
+  position: absolute; min-width: 200px;
+  z-index: calc(var(--sk-z-toolbar) + 10);
+  padding: var(--sk-pad);
+  border-radius: var(--sk-r-m);
+  transform-origin: top;
+  transform: scale(0.96) translateY(-4px); opacity: 0; pointer-events: none;
+  transition: transform var(--sk-dur-1) var(--sk-spring),
+              opacity var(--sk-dur-1) var(--sk-ease);
+}
+.sk-menu.is-open { transform: none; opacity: 1; pointer-events: auto; }
+.sk-menu__item {
+  display: flex; align-items: center; gap: var(--sk-sp-2);
+  width: 100%; min-height: 36px; padding: 0 var(--sk-sp-3);
+  border: none; background: transparent; cursor: pointer;
+  border-radius: calc(var(--sk-r-m) - var(--sk-pad));   /* 同心円 */
+  font: var(--sk-t-sub)/1 var(--sk-font);
+  color: var(--sk-ink); text-align: left; text-decoration: none;
+}
+.sk-menu__item:hover { background: var(--sk-fill-1); }
+.sk-menu__item--danger { color: var(--sk-danger); }
+
+/* --- デスクトップ用サイドナビ。選択状態は seg / tabbar と同じ「塗りでなく形」 --- */
+.sk-sidenav {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--sk-pad); border-radius: var(--sk-r-l);
+}
+.sk-sidenav__item {
+  display: flex; align-items: center; gap: var(--sk-sp-3);
+  min-height: 40px; padding: 0 var(--sk-sp-3);
+  border: none; background: transparent; cursor: pointer;
+  border-radius: calc(var(--sk-r-l) - var(--sk-pad));   /* 同心円 */
+  font: 600 var(--sk-t-sub)/1 var(--sk-font);
+  color: var(--sk-ink-2); text-decoration: none;
+  transition: background var(--sk-dur-2) var(--sk-ease),
+              color var(--sk-dur-2) var(--sk-ease);
+}
+.sk-sidenav__item:hover { background: var(--sk-fill-1); }
+.sk-sidenav__item.is-on, .sk-sidenav__item[aria-current="page"] {
+  color: var(--sk-ink);
+  background: rgba(var(--sk-tint), 0.55);
+  box-shadow: inset 0 1px 0 var(--sk-edge-spec), 0 2px 8px rgba(0,0,0,0.10);
+}
+
+/* --- インラインコード・確認コード・ショートカット(無彩フィルのみ) --- */
+.sk-code {
+  font-family: var(--sk-mono); font-variant-numeric: tabular-nums;
+  font-size: 0.88em; padding: 2px 7px; border-radius: 6px;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline);
+}
+.sk-code--l {                       /* 認証コード等の大表示 */
+  display: inline-block; font-size: var(--sk-t-title3); font-weight: 600;
+  letter-spacing: 0.12em; padding: var(--sk-sp-2) var(--sk-sp-4);
+  border-radius: var(--sk-r-s);
+}
+.sk-kbd {
+  font: 600 var(--sk-t-caption)/1 var(--sk-mono);
+  padding: 3px 7px; border-radius: 6px;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline), inset 0 -1.5px 0 var(--sk-hairline);
+}
+
+/* --- ステッパー(ウィザード進行)。点・線・数字のみ。
+   現在ステップの accent 円は badge と同じ「強調は透けさせない」枠 --- */
+.sk-steps { display: flex; align-items: center; gap: var(--sk-sp-2); }
+.sk-steps__item {
+  display: flex; align-items: center; gap: var(--sk-sp-2);
+  font: 600 var(--sk-t-foot)/1 var(--sk-font); color: var(--sk-ink-3);
+}
+.sk-steps__dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; flex-shrink: 0;
+  background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 1px var(--sk-hairline);
+  font: 700 var(--sk-t-caption)/1 var(--sk-mono); color: var(--sk-ink-2);
+}
+.sk-steps__item.is-on { color: var(--sk-ink); }
+.sk-steps__item.is-on .sk-steps__dot {
+  background: var(--sk-accent); color: var(--sk-on-accent); box-shadow: none;
+}
+.sk-steps__item.is-done { color: var(--sk-ink-2); }
+.sk-steps__item.is-done .sk-steps__dot { background: var(--sk-fill-2); box-shadow: none; }
+.sk-steps__line { flex: 1; min-width: 16px; height: 1.5px; background: var(--sk-hairline); }
+
+/* --- タイポグラフィユーティリティ(サイズ・太さのみ。色は持たない) --- */
+.sk-t-large  { font-size: var(--sk-t-large);  font-weight: 800; line-height: 1.25; }
+.sk-t-title1 { font-size: var(--sk-t-title1); font-weight: 700; line-height: 1.3; }
+.sk-t-title2 { font-size: var(--sk-t-title2); font-weight: 700; line-height: 1.35; }
+.sk-t-title3 { font-size: var(--sk-t-title3); font-weight: 600; line-height: 1.4; }
+.sk-t-body   { font-size: var(--sk-t-body); }
+.sk-t-sub    { font-size: var(--sk-t-sub); }
+.sk-t-foot   { font-size: var(--sk-t-foot); }
+.sk-t-caption{ font-size: var(--sk-t-caption); }
+
+/* --- コントラスト強化(OS の「コントラストを上げる」)。
+   ink の中間段とヘアライン・エッジを引き上げる。--sk-ink-2/3 は :root 定義でも
+   参照先 --sk-ink-rgb が使用側で解決されるため .sk-dark 配下にも自動で効く --- */
+@media (prefers-contrast: more) {
+  :root {
+    --sk-ink-2: rgba(var(--sk-ink-rgb), 0.78);
+    --sk-ink-3: rgba(var(--sk-ink-rgb), 0.56);
+    --sk-hairline: rgba(var(--sk-ink-rgb), 0.28);
+    --sk-edge-dark: rgba(0, 0, 0, 0.45);
+  }
+  .sk-dark { --sk-edge-dark: rgba(255, 255, 255, 0.40); }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  .sk-auto { --sk-edge-dark: rgba(255, 255, 255, 0.40); }
+}
+
 /* ===== スタイルガイド専用 ===== */
 * { margin: 0; }
 body { font-family: var(--sk-font); background: #FFFFFF; }
@@ -640,7 +812,7 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-<!-- sukashi icons v1.0 / 24x24 grid / stroke 1.5 / round cap-join / currentColor -->
+<!-- sukashi icons v1.1 (59種) / 24x24 grid / stroke 1.5 / round cap-join / currentColor -->
 
 <!-- ナビゲーション -->
 <symbol id="sk-i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M15.8 15.8 20 20"/></symbol>
@@ -673,6 +845,10 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 <symbol id="sk-i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
 <symbol id="sk-i-eye-off" viewBox="0 0 24 24"><path d="M4 4l16 16M9.9 6a9.4 9.4 0 0 1 2.1-.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3 3.6M6 7.3A16.6 16.6 0 0 0 2.5 12S6 18.5 12 18.5a9 9 0 0 0 3.2-.6"/></symbol>
 <symbol id="sk-i-lock" viewBox="0 0 24 24"><rect x="5.5" y="11" width="13" height="9" rx="2.5"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/></symbol>
+<symbol id="sk-i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.8" ry="8.5"/><path d="M3.5 12h17"/></symbol>
+<symbol id="sk-i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6.2v5.3c0 4.6-2.9 7.6-7 9-4.1-1.4-7-4.4-7-9V6.2L12 3.5z"/><path d="m9 11.8 2.2 2.2 4-4.5"/></symbol>
+<symbol id="sk-i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.2"/><path d="m11 11 8.8 8.8M16.2 16.2l2.6-2.6"/></symbol>
+<symbol id="sk-i-inbox" viewBox="0 0 24 24"><path d="M6 6.5h12l2.5 7v5H3.5v-5l2.5-7z"/><path d="M3.5 13.5H9a3 3 0 0 0 6 0h5.5"/></symbol>
 
 <!-- コミュニケーション -->
 <symbol id="sk-i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5"/></symbol>
@@ -689,6 +865,8 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 <symbol id="sk-i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
 <symbol id="sk-i-sort" viewBox="0 0 24 24"><path d="M7 4v14M4 15l3 3 3-3M17 20V6M14 9l3-3 3 3"/></symbol>
 <symbol id="sk-i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6M18 3v4h-4"/></symbol>
+<symbol id="sk-i-restore" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M6 3v4h4M12 8v4l3 2"/></symbol>
+<symbol id="sk-i-sparkle" viewBox="0 0 24 24"><path d="M11 4.5c.7 4 2.5 5.8 6.5 6.5-4 .7-5.8 2.5-6.5 6.5-.7-4-2.5-5.8-6.5-6.5 4-.7 5.8-2.5 6.5-6.5z"/><path d="M18.5 15.5c.3 1.7 1 2.4 2.7 2.7-1.7.3-2.4 1-2.7 2.7-.3-1.7-1-2.4-2.7-2.7 1.7-.3 2.4-1 2.7-2.7z"/></symbol>
 
 <!-- メディア・ファイル -->
 <symbol id="sk-i-folder" viewBox="0 0 24 24"><path d="M3.5 6.5h6l2 2.5h9v9.5h-17V6.5z"/></symbol>
@@ -715,9 +893,9 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 <div class="stage">
 
   <header>
-    <div class="sec-label">SUKASHI v2.1 / LIVING STYLE GUIDE</div>
+    <div class="sec-label">SUKASHI v2.2 / LIVING STYLE GUIDE</div>
     <h1 style="font-size:var(--sk-t-large);font-weight:800;line-height:1.2">透かし<span style="color:var(--sk-ink-3)">.</span></h1>
-    <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。<br>v2.1: ダーク(.sk-dark)と識別色を憲法を保って追加。</p>
+    <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。<br>v2.2: 実アプリ部材(通知・メニュー・サイドナビ・ステッパー他)を追加。</p>
   </header>
 
   <div class="panel">
@@ -731,7 +909,7 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 
   <section class="sec">
     <div class="sec-label">ICONS — sukashi icons(タップでコピー)</div>
-    <div class="sk-glass sk-card"><div class="icons-grid"><button class="icell" data-name="search" title="search"><svg class="sk-icon"><use href="#sk-i-search"/></svg><span>search</span></button><button class="icell" data-name="plus" title="plus"><svg class="sk-icon"><use href="#sk-i-plus"/></svg><span>plus</span></button><button class="icell" data-name="minus" title="minus"><svg class="sk-icon"><use href="#sk-i-minus"/></svg><span>minus</span></button><button class="icell" data-name="close" title="close"><svg class="sk-icon"><use href="#sk-i-close"/></svg><span>close</span></button><button class="icell" data-name="check" title="check"><svg class="sk-icon"><use href="#sk-i-check"/></svg><span>check</span></button><button class="icell" data-name="chevron-up" title="chevron-up"><svg class="sk-icon"><use href="#sk-i-chevron-up"/></svg><span>chevron-up</span></button><button class="icell" data-name="chevron-down" title="chevron-down"><svg class="sk-icon"><use href="#sk-i-chevron-down"/></svg><span>chevron-down</span></button><button class="icell" data-name="chevron-left" title="chevron-left"><svg class="sk-icon"><use href="#sk-i-chevron-left"/></svg><span>chevron-left</span></button><button class="icell" data-name="chevron-right" title="chevron-right"><svg class="sk-icon"><use href="#sk-i-chevron-right"/></svg><span>chevron-right</span></button><button class="icell" data-name="arrow-up" title="arrow-up"><svg class="sk-icon"><use href="#sk-i-arrow-up"/></svg><span>arrow-up</span></button><button class="icell" data-name="arrow-down" title="arrow-down"><svg class="sk-icon"><use href="#sk-i-arrow-down"/></svg><span>arrow-down</span></button><button class="icell" data-name="arrow-left" title="arrow-left"><svg class="sk-icon"><use href="#sk-i-arrow-left"/></svg><span>arrow-left</span></button><button class="icell" data-name="arrow-right" title="arrow-right"><svg class="sk-icon"><use href="#sk-i-arrow-right"/></svg><span>arrow-right</span></button><button class="icell" data-name="menu" title="menu"><svg class="sk-icon"><use href="#sk-i-menu"/></svg><span>menu</span></button><button class="icell" data-name="more" title="more"><svg class="sk-icon"><use href="#sk-i-more"/></svg><span>more</span></button><button class="icell" data-name="external" title="external"><svg class="sk-icon"><use href="#sk-i-external"/></svg><span>external</span></button><button class="icell" data-name="home" title="home"><svg class="sk-icon"><use href="#sk-i-home"/></svg><span>home</span></button><button class="icell" data-name="user" title="user"><svg class="sk-icon"><use href="#sk-i-user"/></svg><span>user</span></button><button class="icell" data-name="users" title="users"><svg class="sk-icon"><use href="#sk-i-users"/></svg><span>users</span></button><button class="icell" data-name="bell" title="bell"><svg class="sk-icon"><use href="#sk-i-bell"/></svg><span>bell</span></button><button class="icell" data-name="calendar" title="calendar"><svg class="sk-icon"><use href="#sk-i-calendar"/></svg><span>calendar</span></button><button class="icell" data-name="clock" title="clock"><svg class="sk-icon"><use href="#sk-i-clock"/></svg><span>clock</span></button><button class="icell" data-name="settings" title="settings"><svg class="sk-icon"><use href="#sk-i-settings"/></svg><span>settings</span></button><button class="icell" data-name="star" title="star"><svg class="sk-icon"><use href="#sk-i-star"/></svg><span>star</span></button><button class="icell" data-name="heart" title="heart"><svg class="sk-icon"><use href="#sk-i-heart"/></svg><span>heart</span></button><button class="icell" data-name="eye" title="eye"><svg class="sk-icon"><use href="#sk-i-eye"/></svg><span>eye</span></button><button class="icell" data-name="eye-off" title="eye-off"><svg class="sk-icon"><use href="#sk-i-eye-off"/></svg><span>eye-off</span></button><button class="icell" data-name="lock" title="lock"><svg class="sk-icon"><use href="#sk-i-lock"/></svg><span>lock</span></button><button class="icell" data-name="mail" title="mail"><svg class="sk-icon"><use href="#sk-i-mail"/></svg><span>mail</span></button><button class="icell" data-name="chat" title="chat"><svg class="sk-icon"><use href="#sk-i-chat"/></svg><span>chat</span></button><button class="icell" data-name="share" title="share"><svg class="sk-icon"><use href="#sk-i-share"/></svg><span>share</span></button><button class="icell" data-name="link" title="link"><svg class="sk-icon"><use href="#sk-i-link"/></svg><span>link</span></button><button class="icell" data-name="copy" title="copy"><svg class="sk-icon"><use href="#sk-i-copy"/></svg><span>copy</span></button><button class="icell" data-name="edit" title="edit"><svg class="sk-icon"><use href="#sk-i-edit"/></svg><span>edit</span></button><button class="icell" data-name="trash" title="trash"><svg class="sk-icon"><use href="#sk-i-trash"/></svg><span>trash</span></button><button class="icell" data-name="download" title="download"><svg class="sk-icon"><use href="#sk-i-download"/></svg><span>download</span></button><button class="icell" data-name="upload" title="upload"><svg class="sk-icon"><use href="#sk-i-upload"/></svg><span>upload</span></button><button class="icell" data-name="filter" title="filter"><svg class="sk-icon"><use href="#sk-i-filter"/></svg><span>filter</span></button><button class="icell" data-name="sort" title="sort"><svg class="sk-icon"><use href="#sk-i-sort"/></svg><span>sort</span></button><button class="icell" data-name="refresh" title="refresh"><svg class="sk-icon"><use href="#sk-i-refresh"/></svg><span>refresh</span></button><button class="icell" data-name="folder" title="folder"><svg class="sk-icon"><use href="#sk-i-folder"/></svg><span>folder</span></button><button class="icell" data-name="file" title="file"><svg class="sk-icon"><use href="#sk-i-file"/></svg><span>file</span></button><button class="icell" data-name="image" title="image"><svg class="sk-icon"><use href="#sk-i-image"/></svg><span>image</span></button><button class="icell" data-name="mic" title="mic"><svg class="sk-icon"><use href="#sk-i-mic"/></svg><span>mic</span></button><button class="icell" data-name="play" title="play"><svg class="sk-icon"><use href="#sk-i-play"/></svg><span>play</span></button><button class="icell" data-name="grid" title="grid"><svg class="sk-icon"><use href="#sk-i-grid"/></svg><span>grid</span></button><button class="icell" data-name="chart" title="chart"><svg class="sk-icon"><use href="#sk-i-chart"/></svg><span>chart</span></button><button class="icell" data-name="cart" title="cart"><svg class="sk-icon"><use href="#sk-i-cart"/></svg><span>cart</span></button><button class="icell" data-name="tag" title="tag"><svg class="sk-icon"><use href="#sk-i-tag"/></svg><span>tag</span></button><button class="icell" data-name="package" title="package"><svg class="sk-icon"><use href="#sk-i-package"/></svg><span>package</span></button><button class="icell" data-name="truck" title="truck"><svg class="sk-icon"><use href="#sk-i-truck"/></svg><span>truck</span></button><button class="icell" data-name="barcode" title="barcode"><svg class="sk-icon"><use href="#sk-i-barcode"/></svg><span>barcode</span></button><button class="icell" data-name="warning" title="warning"><svg class="sk-icon"><use href="#sk-i-warning"/></svg><span>warning</span></button><button class="icell" data-name="info" title="info"><svg class="sk-icon"><use href="#sk-i-info"/></svg><span>info</span></button></div></div>
+    <div class="sk-glass sk-card"><div class="icons-grid"><button class="icell" data-name="search" title="search"><svg class="sk-icon"><use href="#sk-i-search"/></svg><span>search</span></button><button class="icell" data-name="plus" title="plus"><svg class="sk-icon"><use href="#sk-i-plus"/></svg><span>plus</span></button><button class="icell" data-name="minus" title="minus"><svg class="sk-icon"><use href="#sk-i-minus"/></svg><span>minus</span></button><button class="icell" data-name="close" title="close"><svg class="sk-icon"><use href="#sk-i-close"/></svg><span>close</span></button><button class="icell" data-name="check" title="check"><svg class="sk-icon"><use href="#sk-i-check"/></svg><span>check</span></button><button class="icell" data-name="chevron-up" title="chevron-up"><svg class="sk-icon"><use href="#sk-i-chevron-up"/></svg><span>chevron-up</span></button><button class="icell" data-name="chevron-down" title="chevron-down"><svg class="sk-icon"><use href="#sk-i-chevron-down"/></svg><span>chevron-down</span></button><button class="icell" data-name="chevron-left" title="chevron-left"><svg class="sk-icon"><use href="#sk-i-chevron-left"/></svg><span>chevron-left</span></button><button class="icell" data-name="chevron-right" title="chevron-right"><svg class="sk-icon"><use href="#sk-i-chevron-right"/></svg><span>chevron-right</span></button><button class="icell" data-name="arrow-up" title="arrow-up"><svg class="sk-icon"><use href="#sk-i-arrow-up"/></svg><span>arrow-up</span></button><button class="icell" data-name="arrow-down" title="arrow-down"><svg class="sk-icon"><use href="#sk-i-arrow-down"/></svg><span>arrow-down</span></button><button class="icell" data-name="arrow-left" title="arrow-left"><svg class="sk-icon"><use href="#sk-i-arrow-left"/></svg><span>arrow-left</span></button><button class="icell" data-name="arrow-right" title="arrow-right"><svg class="sk-icon"><use href="#sk-i-arrow-right"/></svg><span>arrow-right</span></button><button class="icell" data-name="menu" title="menu"><svg class="sk-icon"><use href="#sk-i-menu"/></svg><span>menu</span></button><button class="icell" data-name="more" title="more"><svg class="sk-icon"><use href="#sk-i-more"/></svg><span>more</span></button><button class="icell" data-name="external" title="external"><svg class="sk-icon"><use href="#sk-i-external"/></svg><span>external</span></button><button class="icell" data-name="home" title="home"><svg class="sk-icon"><use href="#sk-i-home"/></svg><span>home</span></button><button class="icell" data-name="user" title="user"><svg class="sk-icon"><use href="#sk-i-user"/></svg><span>user</span></button><button class="icell" data-name="users" title="users"><svg class="sk-icon"><use href="#sk-i-users"/></svg><span>users</span></button><button class="icell" data-name="bell" title="bell"><svg class="sk-icon"><use href="#sk-i-bell"/></svg><span>bell</span></button><button class="icell" data-name="calendar" title="calendar"><svg class="sk-icon"><use href="#sk-i-calendar"/></svg><span>calendar</span></button><button class="icell" data-name="clock" title="clock"><svg class="sk-icon"><use href="#sk-i-clock"/></svg><span>clock</span></button><button class="icell" data-name="settings" title="settings"><svg class="sk-icon"><use href="#sk-i-settings"/></svg><span>settings</span></button><button class="icell" data-name="star" title="star"><svg class="sk-icon"><use href="#sk-i-star"/></svg><span>star</span></button><button class="icell" data-name="heart" title="heart"><svg class="sk-icon"><use href="#sk-i-heart"/></svg><span>heart</span></button><button class="icell" data-name="eye" title="eye"><svg class="sk-icon"><use href="#sk-i-eye"/></svg><span>eye</span></button><button class="icell" data-name="eye-off" title="eye-off"><svg class="sk-icon"><use href="#sk-i-eye-off"/></svg><span>eye-off</span></button><button class="icell" data-name="lock" title="lock"><svg class="sk-icon"><use href="#sk-i-lock"/></svg><span>lock</span></button><button class="icell" data-name="mail" title="mail"><svg class="sk-icon"><use href="#sk-i-mail"/></svg><span>mail</span></button><button class="icell" data-name="chat" title="chat"><svg class="sk-icon"><use href="#sk-i-chat"/></svg><span>chat</span></button><button class="icell" data-name="share" title="share"><svg class="sk-icon"><use href="#sk-i-share"/></svg><span>share</span></button><button class="icell" data-name="link" title="link"><svg class="sk-icon"><use href="#sk-i-link"/></svg><span>link</span></button><button class="icell" data-name="copy" title="copy"><svg class="sk-icon"><use href="#sk-i-copy"/></svg><span>copy</span></button><button class="icell" data-name="edit" title="edit"><svg class="sk-icon"><use href="#sk-i-edit"/></svg><span>edit</span></button><button class="icell" data-name="trash" title="trash"><svg class="sk-icon"><use href="#sk-i-trash"/></svg><span>trash</span></button><button class="icell" data-name="download" title="download"><svg class="sk-icon"><use href="#sk-i-download"/></svg><span>download</span></button><button class="icell" data-name="upload" title="upload"><svg class="sk-icon"><use href="#sk-i-upload"/></svg><span>upload</span></button><button class="icell" data-name="filter" title="filter"><svg class="sk-icon"><use href="#sk-i-filter"/></svg><span>filter</span></button><button class="icell" data-name="sort" title="sort"><svg class="sk-icon"><use href="#sk-i-sort"/></svg><span>sort</span></button><button class="icell" data-name="refresh" title="refresh"><svg class="sk-icon"><use href="#sk-i-refresh"/></svg><span>refresh</span></button><button class="icell" data-name="folder" title="folder"><svg class="sk-icon"><use href="#sk-i-folder"/></svg><span>folder</span></button><button class="icell" data-name="file" title="file"><svg class="sk-icon"><use href="#sk-i-file"/></svg><span>file</span></button><button class="icell" data-name="image" title="image"><svg class="sk-icon"><use href="#sk-i-image"/></svg><span>image</span></button><button class="icell" data-name="mic" title="mic"><svg class="sk-icon"><use href="#sk-i-mic"/></svg><span>mic</span></button><button class="icell" data-name="play" title="play"><svg class="sk-icon"><use href="#sk-i-play"/></svg><span>play</span></button><button class="icell" data-name="grid" title="grid"><svg class="sk-icon"><use href="#sk-i-grid"/></svg><span>grid</span></button><button class="icell" data-name="chart" title="chart"><svg class="sk-icon"><use href="#sk-i-chart"/></svg><span>chart</span></button><button class="icell" data-name="cart" title="cart"><svg class="sk-icon"><use href="#sk-i-cart"/></svg><span>cart</span></button><button class="icell" data-name="tag" title="tag"><svg class="sk-icon"><use href="#sk-i-tag"/></svg><span>tag</span></button><button class="icell" data-name="package" title="package"><svg class="sk-icon"><use href="#sk-i-package"/></svg><span>package</span></button><button class="icell" data-name="truck" title="truck"><svg class="sk-icon"><use href="#sk-i-truck"/></svg><span>truck</span></button><button class="icell" data-name="barcode" title="barcode"><svg class="sk-icon"><use href="#sk-i-barcode"/></svg><span>barcode</span></button><button class="icell" data-name="warning" title="warning"><svg class="sk-icon"><use href="#sk-i-warning"/></svg><span>warning</span></button><button class="icell" data-name="info" title="info"><svg class="sk-icon"><use href="#sk-i-info"/></svg><span>info</span></button><button class="icell" data-name="globe" title="globe"><svg class="sk-icon"><use href="#sk-i-globe"/></svg><span>globe</span></button><button class="icell" data-name="shield" title="shield"><svg class="sk-icon"><use href="#sk-i-shield"/></svg><span>shield</span></button><button class="icell" data-name="key" title="key"><svg class="sk-icon"><use href="#sk-i-key"/></svg><span>key</span></button><button class="icell" data-name="inbox" title="inbox"><svg class="sk-icon"><use href="#sk-i-inbox"/></svg><span>inbox</span></button><button class="icell" data-name="restore" title="restore"><svg class="sk-icon"><use href="#sk-i-restore"/></svg><span>restore</span></button><button class="icell" data-name="sparkle" title="sparkle"><svg class="sk-icon"><use href="#sk-i-sparkle"/></svg><span>sparkle</span></button></div></div>
   </section>
 
   <section class="sec">
@@ -892,6 +1070,87 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
   </section>
 
   <section class="sec">
+    <div class="sec-label">NOTICE — インライン通知(v2.2 / 置きっぱなしの通知。色は線とアイコンだけ)</div>
+    <div class="stack">
+      <div class="sk-glass sk-notice">
+        <svg class="sk-icon"><use href="#sk-i-info"/></svg>
+        <span>下書きは自動保存されます。公開するまで外部には見えません。</span>
+      </div>
+      <div class="sk-glass sk-notice sk-notice--ok">
+        <svg class="sk-icon"><use href="#sk-i-check"/></svg>
+        <span>公開が完了しました。反映まで数分かかることがあります。</span>
+      </div>
+      <div class="sk-glass sk-notice sk-notice--danger">
+        <svg class="sk-icon"><use href="#sk-i-warning"/></svg>
+        <span>接続キーの有効期限が切れています。設定から再接続してください。</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">FIELD — フォーム解剖学(v2.2 / ラベル+ヘルプ/エラー)</div>
+    <div class="sk-glass sk-card">
+      <div class="sk-field">
+        <label class="sk-field__label" for="f-mail">メールアドレス</label>
+        <input class="sk-glass sk-input" id="f-mail" placeholder="you@example.com" aria-describedby="f-mail-help">
+        <div class="sk-field__help" id="f-mail-help">通知の受け取りに使用します。</div>
+      </div>
+      <div class="sk-field">
+        <label class="sk-field__label" for="f-domain">独自ドメイン</label>
+        <input class="sk-glass sk-input is-invalid" id="f-domain" value="example..com" aria-invalid="true" aria-describedby="f-domain-err">
+        <div class="sk-field__error" id="f-domain-err">ドメインの形式が正しくありません。</div>
+      </div>
+      <div class="sk-field">
+        <label class="sk-field__label" for="f-ro">読み取り専用</label>
+        <input class="sk-glass sk-input" id="f-ro" value="sengu-example" readonly>
+      </div>
+      <div class="rowx" style="margin-top:16px">
+        <button class="sk-btn sk-btn--danger">削除する</button>
+        <span style="font-size:var(--sk-t-caption);color:var(--sk-ink-3)">← 破壊的操作は不透明 danger 面(v2.2)</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">MENU & SIDENAV — v2.2</div>
+    <div class="stack">
+      <div style="position:relative;align-self:flex-start">
+        <button class="sk-glass sk-btn" id="open-menu">操作 <svg class="sk-icon sk-icon--s"><use href="#sk-i-chevron-down"/></svg></button>
+        <div class="sk-glass sk-menu" id="menu" role="menu" style="top:calc(100% + 6px);left:0">
+          <button class="sk-menu__item" role="menuitem"><svg class="sk-icon sk-icon--s"><use href="#sk-i-edit"/></svg>名前を変更</button>
+          <button class="sk-menu__item" role="menuitem"><svg class="sk-icon sk-icon--s"><use href="#sk-i-copy"/></svg>複製</button>
+          <button class="sk-menu__item" role="menuitem"><svg class="sk-icon sk-icon--s"><use href="#sk-i-restore"/></svg>この版に戻す</button>
+          <hr class="sk-divider" style="margin:4px 0">
+          <button class="sk-menu__item sk-menu__item--danger" role="menuitem"><svg class="sk-icon sk-icon--s"><use href="#sk-i-trash"/></svg>削除…</button>
+        </div>
+      </div>
+      <nav class="sk-glass sk-sidenav" style="max-width:220px">
+        <a class="sk-sidenav__item is-on" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-home"/></svg>ホーム</a>
+        <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-globe"/></svg>サイト</a>
+        <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-inbox"/></svg>受信箱</a>
+        <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-sparkle"/></svg>AI 編集</a>
+        <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-settings"/></svg>設定</a>
+      </nav>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-label">STEPS & CODE — v2.2</div>
+    <div class="sk-glass sk-card stack">
+      <div class="sk-steps">
+        <div class="sk-steps__item is-done"><span class="sk-steps__dot"><svg class="sk-icon sk-icon--s"><use href="#sk-i-check"/></svg></span>取り込み</div>
+        <div class="sk-steps__line"></div>
+        <div class="sk-steps__item is-on"><span class="sk-steps__dot">2</span>確認</div>
+        <div class="sk-steps__line"></div>
+        <div class="sk-steps__item"><span class="sk-steps__dot">3</span>公開</div>
+      </div>
+      <hr class="sk-divider">
+      <p style="font-size:var(--sk-t-sub)">確認コード <span class="sk-code sk-code--l">B7KX-2Q9F</span> を入力。</p>
+      <p style="font-size:var(--sk-t-sub)">エンドポイントは <span class="sk-code">/api/v2/pages</span>、保存は <span class="sk-kbd">⌘S</span>。</p>
+    </div>
+  </section>
+
+  <section class="sec">
     <div class="sec-label">OVERLAYS</div>
     <div class="rowx">
       <button class="sk-glass sk-btn" id="open-modal">モーダル</button>
@@ -974,6 +1233,14 @@ function showToast(msg){
   toastTimer = setTimeout(function(){ toast.classList.remove('is-show'); }, 1800);
 }
 document.getElementById('open-toast').addEventListener('click', function(){ showToast('保存しました'); });
+var menu = document.getElementById('menu');
+document.getElementById('open-menu').addEventListener('click', function(e){
+  e.stopPropagation();
+  menu.classList.toggle('is-open');
+});
+document.addEventListener('mousedown', function(e){
+  if (!menu.contains(e.target) && !document.getElementById('open-menu').contains(e.target)) menu.classList.remove('is-open');
+});
 document.querySelectorAll('.icell').forEach(function(c){ c.addEventListener('click', function(){
   var name = 'sk-i-' + c.dataset.name;
   if (navigator.clipboard) navigator.clipboard.writeText(name);
