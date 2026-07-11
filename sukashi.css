@@ -647,6 +647,48 @@
 }
 
 /* ==========================================================================
+   プライマリー色の切替機構(opt-in)
+   --------------------------------------------------------------------------
+   憲法は不変。既定はモノクローム(黒 → ダークで近白)のまま。ここで差し替えるのは
+   「既に不透明が許された accent 面(.sk-btn--primary / .sk-chip--accent / .sk-badge)」と
+   フォーム選択状態(switch/check/radio)・進捗・フォーカスリングの "色相" だけ。
+   ガラス面(.sk-glass)には一切色を塗らない = 透明性の憲法を守る。
+   意味色(--sk-danger / --sk-ok)は不変。
+
+   使い方:
+     1) プリセット: ルート(<html> か <body class="sk">)に .sk-accent-<hue> を付ける。
+        例) <html class="sk-accent-blue">
+     2) 任意色: --sk-accent と、その面上の文字/チェック色 --sk-on-accent を直接指定。
+        例) <html style="--sk-accent:#7A5AF8; --sk-on-accent:#fff">
+        --sk-on-accent は白/黒のうち --sk-accent とコントラストが取れる方を選ぶ。
+
+   ※ .sk-dark / .sk-auto の accent 上書きより後に定義。テーマに依らず色相を優先させる。
+     プリセットは light/dark でモノクロと同じ流儀に反転する:
+       light = 中濃色 + 白文字(--sk-on-accent) … 白下地で foreground(quiet/フォーカス)も成立
+       dark  = 一段明色 + 暗文字            … 暗下地でも accent を前景に使って沈まない
+   ========================================================================== */
+.sk-accent-blue   { --sk-accent: #2563EB; --sk-on-accent: #FFFFFF; }
+.sk-accent-teal   { --sk-accent: #0F766E; --sk-on-accent: #FFFFFF; }
+.sk-accent-green  { --sk-accent: #15803D; --sk-on-accent: #FFFFFF; }
+.sk-accent-purple { --sk-accent: #7C3AED; --sk-on-accent: #FFFFFF; }
+.sk-accent-pink   { --sk-accent: #DB2777; --sk-on-accent: #FFFFFF; }
+.sk-accent-orange { --sk-accent: #C2410C; --sk-on-accent: #FFFFFF; }
+.sk-dark.sk-accent-blue   { --sk-accent: #6AA1FF; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-teal   { --sk-accent: #4FD1C5; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-green  { --sk-accent: #4ADE80; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-purple { --sk-accent: #B794F6; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-pink   { --sk-accent: #F776A8; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-orange { --sk-accent: #FB9A56; --sk-on-accent: #16181D; }
+@media (prefers-color-scheme: dark) {
+  .sk-auto.sk-accent-blue   { --sk-accent: #6AA1FF; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-teal   { --sk-accent: #4FD1C5; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-green  { --sk-accent: #4ADE80; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-purple { --sk-accent: #B794F6; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-pink   { --sk-accent: #F776A8; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-orange { --sk-accent: #FB9A56; --sk-on-accent: #16181D; }
+}
+
+/* ==========================================================================
    v2.2 拡張 — 実アプリ部材
    拡張の原則: 憲法維持。不透明例外に .sk-btn--danger(破壊的な確定操作)を追加 —
    primary と同じ「確定系は透けさせない」の理屈。意味色は増やさない:

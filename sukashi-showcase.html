@@ -613,6 +613,31 @@
   border-radius: 2px; background: currentColor; flex-shrink: 0;
 }
 
+/* プライマリー色の切替機構(opt-in / sukashi.css と同内容)。
+   色相を差し替えるのは accent 面・選択状態・フォーカスのみ。ガラス面は塗らない。
+   既定はモノクロ(黒/近白)。light=中濃色+白文字 / dark=明色+暗文字 に反転。
+   任意色は --sk-accent / --sk-on-accent を直接指定。 */
+.sk-accent-blue   { --sk-accent: #2563EB; --sk-on-accent: #FFFFFF; }
+.sk-accent-teal   { --sk-accent: #0F766E; --sk-on-accent: #FFFFFF; }
+.sk-accent-green  { --sk-accent: #15803D; --sk-on-accent: #FFFFFF; }
+.sk-accent-purple { --sk-accent: #7C3AED; --sk-on-accent: #FFFFFF; }
+.sk-accent-pink   { --sk-accent: #DB2777; --sk-on-accent: #FFFFFF; }
+.sk-accent-orange { --sk-accent: #C2410C; --sk-on-accent: #FFFFFF; }
+.sk-dark.sk-accent-blue   { --sk-accent: #6AA1FF; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-teal   { --sk-accent: #4FD1C5; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-green  { --sk-accent: #4ADE80; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-purple { --sk-accent: #B794F6; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-pink   { --sk-accent: #F776A8; --sk-on-accent: #16181D; }
+.sk-dark.sk-accent-orange { --sk-accent: #FB9A56; --sk-on-accent: #16181D; }
+@media (prefers-color-scheme: dark) {
+  .sk-auto.sk-accent-blue   { --sk-accent: #6AA1FF; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-teal   { --sk-accent: #4FD1C5; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-green  { --sk-accent: #4ADE80; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-purple { --sk-accent: #B794F6; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-pink   { --sk-accent: #F776A8; --sk-on-accent: #16181D; }
+  .sk-auto.sk-accent-orange { --sk-accent: #FB9A56; --sk-on-accent: #16181D; }
+}
+
 /* ==========================================================================
    v2.2 拡張 — 実アプリ部材
    拡張の原則: 憲法維持。不透明例外に .sk-btn--danger(破壊的な確定操作)を追加 —
@@ -859,6 +884,16 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 .pagehead { max-width: 460px; margin: 0 auto; }
 .panel .inner { max-width: 460px; margin: 0 auto; }
 .viewseg { max-width: 460px; margin: 10px auto 0; }
+/* プライマリー色スウォッチ(showcase 操作用) */
+.accentbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  max-width: 460px; margin: 10px auto 0; padding: 10px 14px; border-radius: var(--sk-r-l); }
+.accent-label { font-size: 12px; color: var(--sk-ink-2); margin-right: 2px; }
+.swatch { width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; padding: 0;
+  background: var(--sw, var(--sk-ink)); box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.25); position: relative; }
+.swatch.is-on { outline: 2px solid var(--sk-ink); outline-offset: 2px; }
+.swatch--custom { display: grid; place-items: center; overflow: hidden; }
+.swatch--custom svg { width: 15px; height: 15px; color: #fff; mix-blend-mode: difference; pointer-events: none; }
+.swatch--custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 body.is-patterns .sk-tabbar { display: none; }   /* パターン集ではガイド用の固定タブバーを隠す */
 .gallery { margin-top: 20px; }
 .dev-toggle-wrap { max-width: 460px; margin: 0 auto 22px; }
@@ -1068,6 +1103,20 @@ html.sk-dark .browser { background: #0E0F12; }
     <div class="sk-glass sk-seg viewseg" role="tablist">
       <button class="sk-seg__item is-on" data-view="guide">ガイド</button>
       <button class="sk-seg__item" data-view="patterns">パターン集</button>
+    </div>
+    <div class="sk-glass accentbar">
+      <span class="accent-label">primary</span>
+      <button class="swatch is-on" data-accent="" title="モノクロ(既定)" style="--sw:var(--sk-ink)"></button>
+      <button class="swatch" data-accent="blue" title="blue" style="--sw:#2563EB"></button>
+      <button class="swatch" data-accent="teal" title="teal" style="--sw:#0F766E"></button>
+      <button class="swatch" data-accent="green" title="green" style="--sw:#15803D"></button>
+      <button class="swatch" data-accent="purple" title="purple" style="--sw:#7C3AED"></button>
+      <button class="swatch" data-accent="pink" title="pink" style="--sw:#DB2777"></button>
+      <button class="swatch" data-accent="orange" title="orange" style="--sw:#C2410C"></button>
+      <label class="swatch swatch--custom" title="任意色" style="--sw:#7A5AF8">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 1-4L16.5 4.5a2.12 2.12 0 0 1 3 3L8 19l-4 1z"/></svg>
+        <input type="color" id="accent-custom" value="#7A5AF8">
+      </label>
     </div>
   </div>
 
@@ -1963,6 +2012,48 @@ document.querySelectorAll('.devseg .sk-seg__item').forEach(function(b){ b.addEve
   document.querySelector('.phones').hidden = !mobile;
   document.querySelector('.pcs').hidden = mobile;
 });});
+
+// プライマリー色の切替
+var root = document.documentElement;
+var ACCENTS = ['blue','teal','green','purple','pink','orange'];
+function relLum(hex){
+  hex = hex.replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(function(x){ return x + x; }).join('');
+  var r = parseInt(hex.substr(0,2),16)/255, g = parseInt(hex.substr(2,2),16)/255, b = parseInt(hex.substr(4,2),16)/255;
+  function lin(c){ return c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); }
+  return 0.2126*lin(r) + 0.7152*lin(g) + 0.0722*lin(b);
+}
+// accent 面上の文字色は、白/黒でコントラストが高い方を自動採用(WCAG コントラスト比)
+function pickOnAccent(hex){
+  var L = relLum(hex);
+  var cWhite = (1.05) / (L + 0.05);
+  var cBlack = (L + 0.05) / (0.05);
+  return cWhite >= cBlack ? '#FFFFFF' : '#16181D';
+}
+function clearAccent(){
+  ACCENTS.forEach(function(a){ root.classList.remove('sk-accent-' + a); });
+  root.style.removeProperty('--sk-accent');
+  root.style.removeProperty('--sk-on-accent');
+}
+function markSwatch(el){
+  document.querySelectorAll('.accentbar .swatch').forEach(function(x){ x.classList.remove('is-on'); });
+  el.classList.add('is-on');
+}
+document.querySelectorAll('.swatch[data-accent]').forEach(function(b){ b.addEventListener('click', function(){
+  markSwatch(b);
+  clearAccent();
+  if (b.dataset.accent) root.classList.add('sk-accent-' + b.dataset.accent);  // 空=モノクロ既定
+});});
+var accentCustom = document.getElementById('accent-custom');
+function applyCustom(){
+  var c = accentCustom.value;
+  markSwatch(accentCustom.closest('.swatch'));
+  clearAccent();
+  root.style.setProperty('--sk-accent', c);
+  root.style.setProperty('--sk-on-accent', pickOnAccent(c));
+  accentCustom.closest('.swatch').style.setProperty('--sw', c);
+}
+accentCustom.addEventListener('input', applyCustom);
 </script>
 </body>
 </html>
