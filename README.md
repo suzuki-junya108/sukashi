@@ -133,9 +133,23 @@ HStack {
 }
 ```
 
-- トークン: `Sukashi.Space` / `Sukashi.Radius` / `Sukashi.accent(_:)` / `Sukashi.category(_:_:)` / `Sukashi.danger(_:)` / `Sukashi.ok(_:)`
-- ライト/ダークは `@Environment(\.colorScheme)` 追従(プライマリーは黒↔近白へモノクローム反転)。AppKit/UIKit 非依存。
+- トークン: `Sukashi.Space` / `Sukashi.Radius` / `Sukashi.accent(_:)` / `Sukashi.category(_:_:)` / `Sukashi.danger(_:)` / `Sukashi.ok(_:)` / `Sukashi.ink(_:_:_:)` / `Sukashi.fill(_:_:)` / `Sukashi.hairline(_:_:)` / `Sukashi.font(_:)`
+- ライト/ダークは `@Environment(\.colorScheme)` 追従(プライマリーは黒↔近白へモノクローム反転)。`prefers-contrast` は `@Environment(\.colorSchemeContrast)` で ink/ヘアラインを引き上げ。AppKit/UIKit 非依存。
 - `#Preview`(light/dark)同梱。`swift build` で単体ビルド可。
+
+### v2.2 部材(CSS と parity)
+
+CSS の v2.2 部材はすべて SwiftUI 側にも用意している。
+
+- **プライマリー色切替(opt-in)**: `.sukashiAccent(.blue)` 等のプリセット/任意色。既定はモノクローム。ガラス面・意味色には影響しない。
+- **ボタン**: `.buttonStyle(.sukashiPrimary / .sukashiDanger / .sukashiQuiet / .sukashiGlass)`。確定系(primary/danger)は不透明。
+- **通知**: `SukashiNotice(.info / .ok / .danger, systemImage:) { … }`。面は無彩、意味色は左端バー+アイコンのみ。
+- **フォーム解剖学**: `SukashiField("ラベル", help:, error:) { 入力 }` + 入力へ `.sukashiInvalid(true)`。
+- **ステッパー**: `SukashiSteps(titles:, current:)`。
+- **コード/ショートカット**: `SukashiCode("428913", large:)` / `SukashiKbd("⌘C")`。
+- **メニュー/サイドナビ**: `.sukashiMenuSurface()` + `Button().buttonStyle(SukashiMenuItemStyle())` / `SukashiSideNavItem(_,systemImage:,isOn:,action:)`。
+
+> CSS がリファレンス。CSS を拡張したら SwiftUI 版も同じ変更で追従させる(→ `CLAUDE.md`)。
 
 ## ファイル
 
