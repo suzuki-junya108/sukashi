@@ -831,11 +831,22 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 }
 .stack { display: flex; flex-direction: column; gap: 12px; }
 .rowx { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.panel { position: sticky; top: 12px; z-index: 150; }
-.panel .inner { display: flex; align-items: center; gap: 10px;
-  padding: 12px 14px; border-radius: var(--sk-r-l); }
-.panel label { font-size: 12px; color: var(--sk-ink-2); }
-.gival { font-size: 12px; width: 40px; text-align: right; color: var(--sk-ink-2); }
+/* 上部ヘッダ: ブランド+全操作(intensity / Dark / ビュー切替 / primary)を
+   1 枚のガラスにまとめた sticky ヘッダ。PC 幅はブランド左・操作右の 2 カラム。 */
+.topbar { z-index: 200;
+  max-width: 1240px; margin: 0 auto 24px; padding: 16px 18px; border-radius: var(--sk-r-l); }
+.topbar__controls { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.ctl-row { display: flex; align-items: center; gap: 10px; }
+.ctl-label { font-size: 12px; color: var(--sk-ink-2); flex-shrink: 0; }
+.gival { font-size: 12px; width: 40px; text-align: right; color: var(--sk-ink-2); flex-shrink: 0; }
+/* PC 幅ではブランド左・操作右の 2 カラム。ヘッダが低いのでこの幅でのみ sticky にする
+   (モバイルは縦積みで高く、sticky にすると画面を占有しすぎるため通常スクロール) */
+@media (min-width: 820px) {
+  .topbar { position: sticky; top: 8px;
+    display: grid; grid-template-columns: minmax(0,1fr) minmax(360px, 440px);
+    align-items: center; column-gap: 32px; }
+  .topbar__controls { margin-top: 0; }
+}
 .icons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
 .icell { display: flex; flex-direction: column; align-items: center; gap: 6px;
   padding: 12px 4px 8px; border: none; border-radius: var(--sk-r-s);
@@ -891,12 +902,9 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 
 /* ===== ビュー切替 / パターンギャラリー — スタイルガイド専用 ===== */
 [hidden] { display: none !important; }
-.pagehead { max-width: 460px; margin: 0 auto; }
-.panel .inner { max-width: 460px; margin: 0 auto; }
-.viewseg { max-width: 460px; margin: 10px auto 0; }
-/* プライマリー色スウォッチ(showcase 操作用) */
-.accentbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  max-width: 460px; margin: 10px auto 0; padding: 10px 14px; border-radius: var(--sk-r-l); }
+/* 操作: セグ(ビュー切替)は幅いっぱいの薄いトラック、スウォッチ(primary 色) */
+.viewseg { width: 100%; background: var(--sk-fill-1); }
+.accentbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .accent-label { font-size: 12px; color: var(--sk-ink-2); margin-right: 2px; }
 .swatch { width: 26px; height: 26px; border-radius: 50%; border: none; cursor: pointer; padding: 0;
   background: var(--sw, var(--sk-ink)); box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.25); position: relative; }
@@ -1097,38 +1105,39 @@ html.sk-dark .browser { background: #0E0F12; }
 
 <div class="host sk">
 
-  <header class="pagehead">
-    <div class="sec-label">SUKASHI v2.2 / LIVING STYLE GUIDE</div>
-    <h1 style="font-size:var(--sk-t-large);font-weight:800;line-height:1.2">透かし<span style="color:var(--sk-ink-3)">.</span></h1>
-    <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。<br>v2.2: 実アプリ部材＋モバイル/PC のパターン集(上部トグルで切替)。</p>
+  <header class="topbar sk-glass sk">
+    <div class="topbar__brand">
+      <div class="sec-label">SUKASHI v2.2 / LIVING STYLE GUIDE</div>
+      <h1 style="font-size:var(--sk-t-large);font-weight:800;line-height:1.2">透かし<span style="color:var(--sk-ink-3)">.</span></h1>
+      <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。<br>v2.2: 実アプリ部材＋モバイル/PC のパターン集(上部トグルで切替)。</p>
+    </div>
+    <div class="topbar__controls">
+      <div class="ctl-row">
+        <label class="ctl-label">intensity</label>
+        <input type="range" class="sk-range" id="gi" min="0" max="100" value="55" style="height:32px;flex:1">
+        <span class="gival sk-mono" id="gival">0.55</span>
+        <button class="sk-btn sk-btn--quiet" id="theme" style="min-height:32px;padding:0 12px;flex-shrink:0">Dark</button>
+      </div>
+      <div class="sk-seg viewseg" role="tablist">
+        <button class="sk-seg__item is-on" data-view="guide">ガイド</button>
+        <button class="sk-seg__item" data-view="patterns">パターン集</button>
+      </div>
+      <div class="accentbar">
+        <span class="accent-label">primary</span>
+        <button class="swatch is-on" data-accent="" title="モノクロ(既定)" style="--sw:var(--sk-ink)"></button>
+        <button class="swatch" data-accent="blue" title="blue" style="--sw:#2563EB"></button>
+        <button class="swatch" data-accent="teal" title="teal" style="--sw:#0F766E"></button>
+        <button class="swatch" data-accent="green" title="green" style="--sw:#15803D"></button>
+        <button class="swatch" data-accent="purple" title="purple" style="--sw:#7C3AED"></button>
+        <button class="swatch" data-accent="pink" title="pink" style="--sw:#DB2777"></button>
+        <button class="swatch" data-accent="orange" title="orange" style="--sw:#C2410C"></button>
+        <label class="swatch swatch--custom" title="任意色" style="--sw:#7A5AF8">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 1-4L16.5 4.5a2.12 2.12 0 0 1 3 3L8 19l-4 1z"/></svg>
+          <input type="color" id="accent-custom" value="#7A5AF8">
+        </label>
+      </div>
+    </div>
   </header>
-
-  <div class="panel">
-    <div class="sk-glass inner">
-      <label>intensity</label>
-      <input type="range" class="sk-range" id="gi" min="0" max="100" value="55" style="height:32px">
-      <span class="gival sk-mono" id="gival">0.55</span>
-      <button class="sk-btn sk-btn--quiet" id="theme" style="min-height:32px;padding:0 12px;flex-shrink:0">Dark</button>
-    </div>
-    <div class="sk-glass sk-seg viewseg" role="tablist">
-      <button class="sk-seg__item is-on" data-view="guide">ガイド</button>
-      <button class="sk-seg__item" data-view="patterns">パターン集</button>
-    </div>
-    <div class="sk-glass accentbar">
-      <span class="accent-label">primary</span>
-      <button class="swatch is-on" data-accent="" title="モノクロ(既定)" style="--sw:var(--sk-ink)"></button>
-      <button class="swatch" data-accent="blue" title="blue" style="--sw:#2563EB"></button>
-      <button class="swatch" data-accent="teal" title="teal" style="--sw:#0F766E"></button>
-      <button class="swatch" data-accent="green" title="green" style="--sw:#15803D"></button>
-      <button class="swatch" data-accent="purple" title="purple" style="--sw:#7C3AED"></button>
-      <button class="swatch" data-accent="pink" title="pink" style="--sw:#DB2777"></button>
-      <button class="swatch" data-accent="orange" title="orange" style="--sw:#C2410C"></button>
-      <label class="swatch swatch--custom" title="任意色" style="--sw:#7A5AF8">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 1-4L16.5 4.5a2.12 2.12 0 0 1 3 3L8 19l-4 1z"/></svg>
-        <input type="color" id="accent-custom" value="#7A5AF8">
-      </label>
-    </div>
-  </div>
 
   <div class="stage" id="view-guide">
 
