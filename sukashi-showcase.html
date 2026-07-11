@@ -853,6 +853,122 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 .dtop__cols { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
 .dtop__side { display: flex; flex-direction: column; gap: 16px; }
 .dtop__cardhead { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+
+/* ===== ビュー切替 / パターンギャラリー — スタイルガイド専用 ===== */
+[hidden] { display: none !important; }
+.pagehead { max-width: 460px; margin: 0 auto; }
+.panel .inner { max-width: 460px; margin: 0 auto; }
+.viewseg { max-width: 460px; margin: 10px auto 0; }
+body.is-patterns .sk-tabbar { display: none; }   /* パターン集ではガイド用の固定タブバーを隠す */
+.gallery { margin-top: 20px; }
+.dev-toggle-wrap { max-width: 460px; margin: 0 auto 22px; }
+.patt-label {
+  font-size: var(--sk-t-caption); color: var(--sk-ink-3);
+  font-family: var(--sk-mono); letter-spacing: 0.08em; margin-bottom: 10px;
+}
+
+/* --- モバイル端末フレーム --- */
+.phones { display: grid; grid-template-columns: repeat(auto-fill, 360px);
+  gap: 34px 24px; justify-content: center; }
+.phone-item { margin: 0; }
+.phone {
+  width: 360px; height: 760px; margin: 0 auto;
+  border-radius: 46px; padding: 12px;
+  background: rgba(var(--sk-ink-rgb), 0.88);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.phone__screen {
+  position: relative; height: 100%; border-radius: 34px; overflow: hidden;
+  background: #FFFFFF; display: flex; flex-direction: column;
+}
+html.sk-dark .phone__screen { background: #0E0F12; }
+.phone__notch {
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  width: 118px; height: 26px; border-radius: 14px;
+  background: rgba(var(--sk-ink-rgb), 0.88); z-index: 30;
+}
+.phone__bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 42px 16px 12px; border-radius: 0; flex-shrink: 0; z-index: 10;
+}
+.phone__title { flex: 1; font-size: var(--sk-t-title3); font-weight: 700; }
+.phone__scroll { flex: 1; overflow-y: auto; padding: 14px 14px 92px;
+  display: flex; flex-direction: column; gap: 14px; }
+.phone__scroll.chat-scroll { padding-bottom: 14px; gap: 8px; }
+.phone__full { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+.phone__tabbar {
+  position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 10;
+  display: flex; gap: 4px; padding: 8px; border-radius: 999px;
+}
+
+/* --- ブラウザフレーム(PC) --- */
+.browser {
+  max-width: 1240px; margin: 0 auto; border-radius: 16px; overflow: hidden;
+  background: #FFFFFF; box-shadow: 0 26px 70px rgba(0,0,0,0.18), 0 0 0 0.5px var(--sk-hairline);
+}
+html.sk-dark .browser { background: #0E0F12; }
+.browser__bar { display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+  border-bottom: 0.5px solid var(--sk-hairline); }
+.browser__dots { display: flex; gap: 7px; }
+.browser__dots i { width: 11px; height: 11px; border-radius: 50%;
+  background: rgba(var(--sk-ink-rgb), 0.18); }
+.browser__url { flex: 1; max-width: 420px; text-align: center;
+  font: var(--sk-t-caption)/1 var(--sk-mono); color: var(--sk-ink-3);
+  padding: 7px 14px; border-radius: 999px; background: var(--sk-fill-1); }
+.browser__view { overflow-x: auto; padding: 20px; }
+.pc-item { margin: 0; }
+.pc-item + .pc-item { margin-top: 40px; }
+
+/* --- サイト(LP・記事)汎用 --- */
+.site { min-width: 960px; max-width: 1120px; margin: 0 auto; }
+.site-nav { display: flex; align-items: center; gap: 22px; border-radius: var(--sk-r-l); }
+.site-nav a { font-size: var(--sk-t-sub); color: var(--sk-ink-2); text-decoration: none; }
+.site-nav a:hover { color: var(--sk-ink); }
+.hero { text-align: center; padding: 60px 20px 36px; }
+.hero h2 { font-size: 2.6rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+.feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.price-grid ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.price-grid li { display: flex; align-items: center; gap: 8px; font-size: var(--sk-t-sub); }
+.logos { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; opacity: 0.55; }
+.logos span { font-weight: 800; font-size: var(--sk-t-title3); color: var(--sk-ink-2); letter-spacing: -0.02em; }
+.cta-band { text-align: center; padding: 46px 20px; border-radius: var(--sk-r-l); }
+.site-foot { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 20px; }
+.site-foot a { display: block; font-size: var(--sk-t-sub); color: var(--sk-ink-2); text-decoration: none; padding: 3px 0; }
+.site-foot a:hover { color: var(--sk-ink); }
+
+/* --- 記事 3カラム --- */
+.docs { display: grid; grid-template-columns: 200px 1fr 190px; gap: 28px; min-width: 960px; align-items: start; }
+.doc-body { max-width: 680px; }
+.doc-body h3 { font-size: var(--sk-t-title2); font-weight: 700; margin: 24px 0 8px; }
+.doc-body p { color: var(--sk-ink); margin: 12px 0; line-height: 1.7; }
+.toc { position: sticky; top: 12px; font-size: var(--sk-t-foot); }
+.toc a { display: block; color: var(--sk-ink-3); text-decoration: none; padding: 4px 0; }
+.toc a.is-on { color: var(--sk-ink); font-weight: 600; }
+
+/* --- メール 3ペイン --- */
+.mail { display: grid; grid-template-columns: 200px 300px 1fr; gap: 14px; min-width: 940px; align-items: start; }
+.mail-list__row { display: flex; flex-direction: column; gap: 3px; padding: 11px 12px; border-radius: var(--sk-r-m); cursor: pointer; }
+.mail-list__row:hover { background: var(--sk-fill-1); }
+.mail-list__row.is-on { background: rgba(var(--sk-tint), 0.55); box-shadow: inset 0 1px 0 var(--sk-edge-spec); }
+
+/* --- フィード / チャット(モバイル) --- */
+.story { display: flex; gap: 14px; overflow-x: auto; }
+.story__i { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; }
+.story__ring { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+  box-shadow: 0 0 0 2px var(--sk-hairline); }
+.feed-img { height: 190px; border-radius: var(--sk-r-m); background: var(--sk-fill-1);
+  box-shadow: inset 0 0 0 0.5px var(--sk-hairline); display: grid; place-items: center; }
+.feed-act { display: flex; gap: 20px; color: var(--sk-ink-2); }
+.feed-act span { display: inline-flex; align-items: center; gap: 5px; font-size: var(--sk-t-foot); }
+.bubble { max-width: 78%; padding: 9px 13px; border-radius: 18px; font-size: var(--sk-t-sub); line-height: 1.45; }
+.bubble--in { align-self: flex-start; border-bottom-left-radius: 5px; }
+.bubble--me { align-self: flex-end; border-bottom-right-radius: 5px;
+  background: var(--sk-fill-2); box-shadow: inset 0 0 0 0.5px var(--sk-hairline); }
+.chat-date { text-align: center; font-size: var(--sk-t-caption); color: var(--sk-ink-3); margin: 4px 0; }
+.chat-input { display: flex; align-items: center; gap: 8px; padding: 8px; margin: 8px; border-radius: 999px; flex-shrink: 0; }
+.chat-input input { flex: 1; min-width: 0; border: none; background: transparent; outline: none;
+  font: var(--sk-t-sub)/1.4 var(--sk-font); color: var(--sk-ink); }
 </style>
 </head>
 <body>
@@ -935,12 +1051,11 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 </svg>
 
 <div class="host sk">
-<div class="stage">
 
-  <header>
+  <header class="pagehead">
     <div class="sec-label">SUKASHI v2.2 / LIVING STYLE GUIDE</div>
     <h1 style="font-size:var(--sk-t-large);font-weight:800;line-height:1.2">透かし<span style="color:var(--sk-ink-3)">.</span></h1>
-    <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。<br>v2.2: 実アプリ部材(通知・メニュー・サイドナビ・ステッパー他)を追加。</p>
+    <p style="font-size:var(--sk-t-sub);color:var(--sk-ink-2);margin-top:4px">白下地・無彩ガラス・黒プライマリー・グラデ無し。<br>v2.2: 実アプリ部材＋モバイル/PC のパターン集(上部トグルで切替)。</p>
   </header>
 
   <div class="panel">
@@ -950,7 +1065,13 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
       <span class="gival sk-mono" id="gival">0.55</span>
       <button class="sk-btn sk-btn--quiet" id="theme" style="min-height:32px;padding:0 12px;flex-shrink:0">Dark</button>
     </div>
+    <div class="sk-glass sk-seg viewseg" role="tablist">
+      <button class="sk-seg__item is-on" data-view="guide">ガイド</button>
+      <button class="sk-seg__item" data-view="patterns">パターン集</button>
+    </div>
   </div>
+
+  <div class="stage" id="view-guide">
 
   <section class="sec">
     <div class="sec-label">ICONS — sukashi icons(タップでコピー)</div>
@@ -1204,19 +1325,206 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
     </div>
   </section>
 
-</div>
+</div><!-- /#view-guide -->
 
-<!-- ========== DESKTOP (PC) LAYOUT — 管理画面の実例(全幅・幅不足時は横スクロール) ========== -->
-<section class="dtop-wrap">
-  <div class="dtop-wrap__label">
-    <div class="sec-label">DESKTOP LAYOUT — 管理画面(PC)</div>
-    <p style="font-size:var(--sk-t-foot);color:var(--sk-ink-3)">
-      同じ憲法・同じトークンで組んだ PC 向けレイアウト。ガラスはクローム(トップバー・サイドナビ・カード)に、本文と表はホストの下地に置く。intensity / Dark は上部スライダーで全画面連動。幅が狭いときは横スクロールで全体を確認できる。
-    </p>
+<!-- ========================================================================
+     パターン集(Mobile=アプリ / PC=サイト)。intensity / Dark は全連動。
+     ======================================================================== -->
+<div class="gallery" id="view-patterns" hidden>
+
+  <div class="dev-toggle-wrap">
+    <div class="sk-glass sk-seg devseg" role="tablist">
+      <button class="sk-seg__item is-on" data-dev="mobile">Mobile(アプリ)</button>
+      <button class="sk-seg__item" data-dev="pc">PC(サイト)</button>
+    </div>
   </div>
 
-  <div class="dtop__scroll">
-    <div class="dtop__app">
+  <!-- ===================== MOBILE(アプリ)パターン ===================== -->
+  <div class="phones" data-dev="mobile">
+
+    <!-- M1: 受注ダッシュボード -->
+    <figure class="phone-item">
+      <figcaption class="patt-label">アプリ · 受注ダッシュボード(EC・管理)</figcaption>
+      <div class="phone"><div class="phone__notch"></div><div class="phone__screen sk">
+        <header class="phone__bar sk-glass">
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-menu"/></svg></button>
+          <span class="phone__title">受注</span>
+          <button class="sk-iconbtn" style="position:relative"><svg class="sk-icon sk-icon--s"><use href="#sk-i-bell"/></svg><span class="sk-badge sk-badge--danger" style="position:absolute;top:-2px;right:-2px">5</span></button>
+        </header>
+        <div class="phone__scroll">
+          <div>
+            <div class="sk-t-caption" style="color:var(--sk-ink-3)">おはようございます</div>
+            <div class="sk-t-title2" style="font-weight:700">今日の受注 184 件</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="sk-glass sk-card kpi" style="padding:14px"><span class="kpi__label">売上</span><span class="kpi__num sk-mono" style="font-size:var(--sk-t-title2)">¥6.1M</span><span class="kpi__foot"><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-arrow-up"/></svg><span class="sk-mono sk-t-caption" style="color:var(--sk-ok)">+8.2%</span></span></div>
+            <div class="sk-glass sk-card kpi" style="padding:14px"><span class="kpi__label">未出荷</span><span class="kpi__num sk-mono" style="font-size:var(--sk-t-title2)">12</span><span class="kpi__foot"><svg class="sk-icon sk-icon--s" style="color:var(--sk-danger)"><use href="#sk-i-arrow-up"/></svg><span class="sk-mono sk-t-caption" style="color:var(--sk-danger)">+3</span></span></div>
+          </div>
+          <div class="sk-glass sk-notice"><svg class="sk-icon"><use href="#sk-i-info"/></svg><span>楽天の在庫連携が完了しました。</span></div>
+          <div class="sk-glass sk-card">
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-package"/></svg><div class="sk-row__main">未出荷<div class="sk-t-caption" style="color:var(--sk-ink-3)">要対応</div></div><span class="sk-badge">12</span></div>
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-truck"/></svg><div class="sk-row__main">出荷済み</div><span class="sk-row__value sk-mono">248</span></div>
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-restore"/></svg><div class="sk-row__main">返品</div><span class="sk-row__value sk-mono">3</span></div>
+          </div>
+          <button class="sk-btn sk-btn--primary" style="width:100%"><svg class="sk-icon sk-icon--s"><use href="#sk-i-plus"/></svg>新規受注</button>
+        </div>
+        <nav class="phone__tabbar sk-glass">
+          <button class="sk-tabbar__item is-on"><svg class="sk-icon sk-icon--s"><use href="#sk-i-home"/></svg>ホーム</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-cart"/></svg>受注</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-chart"/></svg>分析</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-settings"/></svg>設定</button>
+        </nav>
+      </div></div>
+    </figure>
+
+    <!-- M2: SNS フィード -->
+    <figure class="phone-item">
+      <figcaption class="patt-label">アプリ · SNS フィード(コンテンツ)</figcaption>
+      <div class="phone"><div class="phone__notch"></div><div class="phone__screen sk">
+        <header class="phone__bar sk-glass">
+          <span class="phone__title">フィード</span>
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-search"/></svg></button>
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-plus"/></svg></button>
+        </header>
+        <div class="phone__scroll">
+          <div class="story">
+            <div class="story__i"><div class="story__ring"><span class="sk-avatar sk-avatar--s">SZ</span></div><span class="sk-t-caption" style="color:var(--sk-ink-3)">あなた</span></div>
+            <div class="story__i"><div class="story__ring"><span class="sk-avatar sk-avatar--s">NE</span></div><span class="sk-t-caption" style="color:var(--sk-ink-3)">ne</span></div>
+            <div class="story__i"><div class="story__ring"><span class="sk-avatar sk-avatar--s">田</span></div><span class="sk-t-caption" style="color:var(--sk-ink-3)">tanaka</span></div>
+            <div class="story__i"><div class="story__ring"><span class="sk-avatar sk-avatar--s">佐</span></div><span class="sk-t-caption" style="color:var(--sk-ink-3)">sato</span></div>
+            <div class="story__i"><div class="story__ring"><span class="sk-avatar sk-avatar--s">高</span></div><span class="sk-t-caption" style="color:var(--sk-ink-3)">taka</span></div>
+          </div>
+          <hr class="sk-divider">
+          <article class="sk-glass sk-card stack" style="gap:10px">
+            <div class="rowx" style="gap:10px">
+              <span class="sk-avatar sk-avatar--s">NE</span>
+              <div class="sk-row__main"><div style="font-weight:600;font-size:var(--sk-t-sub)">Next Engine</div><div class="sk-t-caption" style="color:var(--sk-ink-3)">2 時間前</div></div>
+              <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-more"/></svg></button>
+            </div>
+            <p style="font-size:var(--sk-t-sub)">新機能をリリースしました。透明なガラス UI で受注管理がもっと速く。</p>
+            <div class="feed-img"><svg class="sk-icon" style="width:34px;height:34px;color:var(--sk-ink-3)"><use href="#sk-i-image"/></svg></div>
+            <div class="feed-act">
+              <span><svg class="sk-icon sk-icon--s"><use href="#sk-i-heart"/></svg>128</span>
+              <span><svg class="sk-icon sk-icon--s"><use href="#sk-i-chat"/></svg>24</span>
+              <span><svg class="sk-icon sk-icon--s"><use href="#sk-i-share"/></svg></span>
+            </div>
+          </article>
+          <article class="sk-glass sk-card stack" style="gap:10px">
+            <div class="rowx" style="gap:10px">
+              <span class="sk-avatar sk-avatar--s">田</span>
+              <div class="sk-row__main"><div style="font-weight:600;font-size:var(--sk-t-sub)">田中 花子</div><div class="sk-t-caption" style="color:var(--sk-ink-3)">5 時間前</div></div>
+              <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-more"/></svg></button>
+            </div>
+            <p style="font-size:var(--sk-t-sub)">モノクロームなのに情報が埋もれない。識別色は点だけで十分でした。</p>
+            <div class="feed-act">
+              <span><svg class="sk-icon sk-icon--s"><use href="#sk-i-heart"/></svg>42</span>
+              <span><svg class="sk-icon sk-icon--s"><use href="#sk-i-chat"/></svg>6</span>
+              <span><svg class="sk-icon sk-icon--s"><use href="#sk-i-share"/></svg></span>
+            </div>
+          </article>
+        </div>
+        <nav class="phone__tabbar sk-glass">
+          <button class="sk-tabbar__item is-on"><svg class="sk-icon sk-icon--s"><use href="#sk-i-home"/></svg>ホーム</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-search"/></svg>検索</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-plus"/></svg>投稿</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-bell"/></svg>通知</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-user"/></svg>自分</button>
+        </nav>
+      </div></div>
+    </figure>
+
+    <!-- M3: チャット -->
+    <figure class="phone-item">
+      <figcaption class="patt-label">アプリ · チャット(コミュニケーション)</figcaption>
+      <div class="phone"><div class="phone__notch"></div><div class="phone__screen sk">
+        <header class="phone__bar sk-glass">
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-chevron-left"/></svg></button>
+          <span class="sk-avatar sk-avatar--s">田</span>
+          <div style="flex:1"><div style="font-weight:700;font-size:var(--sk-t-sub)">田中 花子</div><div class="sk-t-caption" style="color:var(--sk-ok)">● オンライン</div></div>
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-more"/></svg></button>
+        </header>
+        <div class="phone__scroll chat-scroll">
+          <div class="chat-date">今日 14:32</div>
+          <div class="sk-glass bubble bubble--in">こんにちは!受注 #100248 の出荷はいつ頃になりますか?</div>
+          <div class="bubble bubble--me">本日中に出荷手配します。追跡番号は完了後にお送りします。</div>
+          <div class="sk-glass bubble bubble--in">助かります、ありがとうございます!</div>
+          <div class="bubble bubble--me">こちらこそ、少々お待ちください。</div>
+          <div class="sk-glass bubble bubble--in">ギフト包装も可能でしょうか?</div>
+          <div class="bubble bubble--me">はい、対応できます。備考欄にご記入ください。</div>
+        </div>
+        <div class="chat-input sk-glass">
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-plus"/></svg></button>
+          <input placeholder="メッセージ…">
+          <button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-arrow-up"/></svg></button>
+        </div>
+      </div></div>
+    </figure>
+
+    <!-- M4: 設定 -->
+    <figure class="phone-item">
+      <figcaption class="patt-label">アプリ · 設定(汎用)</figcaption>
+      <div class="phone"><div class="phone__notch"></div><div class="phone__screen sk">
+        <header class="phone__bar sk-glass"><span class="phone__title">設定</span></header>
+        <div class="phone__scroll">
+          <div class="sk-glass sk-card">
+            <div class="sk-row"><span class="sk-avatar">SZ</span><div class="sk-row__main"><div style="font-weight:600">鈴木 淳也</div><div class="sk-t-caption" style="color:var(--sk-ink-3)">suzuki@example.com</div></div><svg class="sk-icon sk-icon--s" style="color:var(--sk-ink-3)"><use href="#sk-i-chevron-right"/></svg></div>
+          </div>
+          <div class="patt-label" style="margin:2px 0 -6px 4px">一般</div>
+          <div class="sk-glass sk-card">
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-bell"/></svg><div class="sk-row__main">通知</div><label class="sk-switch"><input type="checkbox" checked><span class="sk-switch__track"></span></label></div>
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-eye"/></svg><div class="sk-row__main">ダークモード</div><label class="sk-switch"><input type="checkbox"><span class="sk-switch__track"></span></label></div>
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-globe"/></svg><div class="sk-row__main">言語</div><span class="sk-row__value">日本語</span><svg class="sk-icon sk-icon--s" style="color:var(--sk-ink-3)"><use href="#sk-i-chevron-right"/></svg></div>
+          </div>
+          <div class="patt-label" style="margin:2px 0 -6px 4px">アカウント</div>
+          <div class="sk-glass sk-card">
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-lock"/></svg><div class="sk-row__main">プライバシー</div><svg class="sk-icon sk-icon--s" style="color:var(--sk-ink-3)"><use href="#sk-i-chevron-right"/></svg></div>
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-ink-2)"><use href="#sk-i-shield"/></svg><div class="sk-row__main">セキュリティ</div><svg class="sk-icon sk-icon--s" style="color:var(--sk-ink-3)"><use href="#sk-i-chevron-right"/></svg></div>
+            <div class="sk-row"><svg class="sk-icon" style="color:var(--sk-danger)"><use href="#sk-i-trash"/></svg><div class="sk-row__main" style="color:var(--sk-danger)">アカウントを削除</div></div>
+          </div>
+        </div>
+        <nav class="phone__tabbar sk-glass">
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-home"/></svg>ホーム</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-cart"/></svg>受注</button>
+          <button class="sk-tabbar__item"><svg class="sk-icon sk-icon--s"><use href="#sk-i-chart"/></svg>分析</button>
+          <button class="sk-tabbar__item is-on"><svg class="sk-icon sk-icon--s"><use href="#sk-i-settings"/></svg>設定</button>
+        </nav>
+      </div></div>
+    </figure>
+
+    <!-- M5: ログイン / オンボーディング -->
+    <figure class="phone-item">
+      <figcaption class="patt-label">アプリ · ログイン / オンボーディング(認証)</figcaption>
+      <div class="phone"><div class="phone__notch"></div><div class="phone__screen sk">
+        <div class="phone__full" style="justify-content:center;padding:32px 24px">
+          <div style="text-align:center;margin-bottom:26px">
+            <div style="font-size:2.4rem;font-weight:800;line-height:1">透かし<span style="color:var(--sk-ink-3)">.</span></div>
+            <p style="color:var(--sk-ink-2);font-size:var(--sk-t-sub);margin-top:8px">アカウントにログイン</p>
+          </div>
+          <div class="stack" style="gap:12px">
+            <div class="sk-field"><label class="sk-field__label">メールアドレス</label><input class="sk-glass sk-input" placeholder="you@example.com"></div>
+            <div class="sk-field"><label class="sk-field__label">パスワード</label><input class="sk-glass sk-input" type="password" value="password"></div>
+            <button class="sk-btn sk-btn--primary" style="width:100%;margin-top:4px">ログイン</button>
+            <div class="rowx" style="justify-content:center;gap:10px;color:var(--sk-ink-3)"><hr class="sk-divider" style="flex:1"><span class="sk-t-caption">または</span><hr class="sk-divider" style="flex:1"></div>
+            <button class="sk-glass sk-btn" style="width:100%"><svg class="sk-icon sk-icon--s"><use href="#sk-i-globe"/></svg>Google で続ける</button>
+            <button class="sk-glass sk-btn" style="width:100%"><svg class="sk-icon sk-icon--s"><use href="#sk-i-mail"/></svg>メールで続ける</button>
+          </div>
+          <p style="text-align:center;color:var(--sk-ink-3);font-size:var(--sk-t-foot);margin-top:24px">アカウントがない? <span style="color:var(--sk-ink);font-weight:600">新規登録</span></p>
+        </div>
+      </div></div>
+    </figure>
+
+  </div>
+
+  <!-- ===================== PC(サイト)パターン ===================== -->
+  <div class="pcs" data-dev="pc" hidden>
+
+    <!-- P1: 管理ダッシュボード -->
+    <figure class="pc-item">
+      <figcaption class="patt-label">サイト · 管理ダッシュボード(EC・管理 / 受注)</figcaption>
+      <div class="browser">
+        <div class="browser__bar"><div class="browser__dots"><i></i><i></i><i></i></div><div class="browser__url">app.sukashi.example / orders</div></div>
+        <div class="browser__view">
+          <div class="dtop__app">
 
       <!-- トップツールバー -->
       <header class="sk-glass sk-toolbar dtop__bar">
@@ -1371,11 +1679,188 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
           </div>
         </main>
       </div>
-    </div>
-  </div>
-</section>
+          </div><!-- /.dtop__app -->
+        </div><!-- /.browser__view -->
+      </div><!-- /.browser -->
+    </figure>
 
-</div>
+    <!-- P2: マーケティング LP -->
+    <figure class="pc-item">
+      <figcaption class="patt-label">サイト · マーケティング LP(コーポレート)</figcaption>
+      <div class="browser">
+        <div class="browser__bar"><div class="browser__dots"><i></i><i></i><i></i></div><div class="browser__url">sukashi.example</div></div>
+        <div class="browser__view">
+          <div class="site" style="display:flex;flex-direction:column;gap:0">
+
+            <nav class="sk-glass sk-toolbar site-nav">
+              <span class="dtop__brand">透かし<span style="color:var(--sk-ink-3)">.</span></span>
+              <div style="flex:1"></div>
+              <a href="#">特徴</a><a href="#">料金</a><a href="#">導入事例</a><a href="#">ドキュメント</a>
+              <button class="sk-glass sk-btn" style="min-height:38px">ログイン</button>
+              <button class="sk-btn sk-btn--primary" style="min-height:38px">無料で始める</button>
+            </nav>
+
+            <section class="hero">
+              <span class="sk-glass sk-chip" style="margin-bottom:16px"><span class="sk-dot sk-cat-3"></span>v2.2 リリース</span>
+              <h2>透けるほど、速い。<br>モノクロームの管理体験。</h2>
+              <p style="font-size:var(--sk-t-title3);color:var(--sk-ink-2);max-width:560px;margin:16px auto 0">グラデーション不使用。ガラスの材質と 1 本の変数だけで、モバイルから管理画面まで一貫した UI を。</p>
+              <div class="rowx" style="justify-content:center;margin-top:24px">
+                <button class="sk-btn sk-btn--primary" style="padding:0 28px">無料で始める</button>
+                <button class="sk-glass sk-btn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-play"/></svg>デモを見る</button>
+              </div>
+            </section>
+
+            <div class="logos"><span>RAKUTEN</span><span>amazon</span><span>Yahoo!</span><span>Shopify</span><span>BASE</span></div>
+
+            <section style="padding:56px 0 24px">
+              <div style="text-align:center;margin-bottom:24px"><div class="sec-label" style="margin:0">FEATURES</div><h3 style="font-size:var(--sk-t-title1);font-weight:700">必要なものだけ、美しく</h3></div>
+              <div class="feat-grid">
+                <div class="sk-glass sk-card stack" style="gap:8px"><svg class="sk-icon sk-icon--l"><use href="#sk-i-sparkle"/></svg><div style="font-weight:700;font-size:var(--sk-t-title3)">一貫した材質</div><p style="color:var(--sk-ink-2);font-size:var(--sk-t-sub)">.sk-glass 一枚で全部材の質感が決まる。調整は 1 箇所だけ。</p></div>
+                <div class="sk-glass sk-card stack" style="gap:8px"><svg class="sk-icon sk-icon--l"><use href="#sk-i-chart"/></svg><div style="font-weight:700;font-size:var(--sk-t-title3)">高いデータ密度</div><p style="color:var(--sk-ink-2);font-size:var(--sk-t-sub)">--gi を上げれば管理画面向けの不透明・高密度にも即対応。</p></div>
+                <div class="sk-glass sk-card stack" style="gap:8px"><svg class="sk-icon sk-icon--l"><use href="#sk-i-shield"/></svg><div style="font-weight:700;font-size:var(--sk-t-title3)">アクセシブル</div><p style="color:var(--sk-ink-2);font-size:var(--sk-t-sub)">透明度削減・コントラスト強化・モーション削減に標準対応。</p></div>
+              </div>
+            </section>
+
+            <section style="padding:32px 0">
+              <div style="text-align:center;margin-bottom:24px"><div class="sec-label" style="margin:0">PRICING</div><h3 style="font-size:var(--sk-t-title1);font-weight:700">シンプルな料金</h3></div>
+              <div class="price-grid">
+                <div class="sk-glass sk-card stack" style="gap:14px">
+                  <div style="font-weight:700">Free</div>
+                  <div><span class="sk-t-large" style="font-weight:800">¥0</span><span style="color:var(--sk-ink-3)"> /月</span></div>
+                  <ul><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>1 ユーザー</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>受注 100 件/月</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>コミュニティ支援</li></ul>
+                  <button class="sk-glass sk-btn" style="width:100%">始める</button>
+                </div>
+                <div class="sk-glass sk-card stack" style="gap:14px;box-shadow:inset 0 0 0 1.5px var(--sk-accent), var(--sk-shadow)">
+                  <div class="rowx" style="justify-content:space-between"><span style="font-weight:700">Pro</span><span class="sk-chip sk-chip--accent">人気</span></div>
+                  <div><span class="sk-t-large" style="font-weight:800">¥4,800</span><span style="color:var(--sk-ink-3)"> /月</span></div>
+                  <ul><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>5 ユーザー</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>受注 無制限</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>自動出荷連携</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>優先サポート</li></ul>
+                  <button class="sk-btn sk-btn--primary" style="width:100%">Pro を選ぶ</button>
+                </div>
+                <div class="sk-glass sk-card stack" style="gap:14px">
+                  <div style="font-weight:700">Enterprise</div>
+                  <div><span class="sk-t-large" style="font-weight:800">応相談</span></div>
+                  <ul><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>無制限ユーザー</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>SSO / 監査ログ</li><li><svg class="sk-icon sk-icon--s" style="color:var(--sk-ok)"><use href="#sk-i-check"/></svg>専任担当</li></ul>
+                  <button class="sk-glass sk-btn" style="width:100%">問い合わせ</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="sk-glass cta-band" style="margin:32px 0">
+              <h3 style="font-size:var(--sk-t-title1);font-weight:800">今日から透かしを。</h3>
+              <p style="color:var(--sk-ink-2);margin:8px 0 20px">クレジットカード不要・5 分でセットアップ。</p>
+              <button class="sk-btn sk-btn--primary" style="padding:0 28px">無料で始める</button>
+            </section>
+
+            <hr class="sk-divider">
+            <footer class="site-foot" style="padding:24px 0">
+              <div><div class="dtop__brand" style="font-size:var(--sk-t-title3)">透かし<span style="color:var(--sk-ink-3)">.</span></div><p class="sk-t-caption" style="color:var(--sk-ink-3);margin-top:8px">© 2026 sukashi design</p></div>
+              <div><div class="sk-t-caption" style="color:var(--sk-ink-3);margin-bottom:6px">製品</div><a href="#">特徴</a><a href="#">料金</a><a href="#">変更履歴</a></div>
+              <div><div class="sk-t-caption" style="color:var(--sk-ink-3);margin-bottom:6px">リソース</div><a href="#">ドキュメント</a><a href="#">ブログ</a><a href="#">サポート</a></div>
+              <div><div class="sk-t-caption" style="color:var(--sk-ink-3);margin-bottom:6px">会社</div><a href="#">会社概要</a><a href="#">採用</a><a href="#">お問い合わせ</a></div>
+            </footer>
+
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- P3: 記事 / ドキュメント -->
+    <figure class="pc-item">
+      <figcaption class="patt-label">サイト · 記事 / ドキュメント(コンテンツ)</figcaption>
+      <div class="browser">
+        <div class="browser__bar"><div class="browser__dots"><i></i><i></i><i></i></div><div class="browser__url">docs.sukashi.example / guide</div></div>
+        <div class="browser__view">
+          <div class="docs">
+            <aside class="sk-glass sk-sidenav" style="position:sticky;top:12px">
+              <div class="dtop__navlabel">はじめに</div>
+              <a class="sk-sidenav__item is-on" href="#">概要</a>
+              <a class="sk-sidenav__item" href="#">インストール</a>
+              <div class="dtop__navlabel" style="margin-top:8px">ガイド</div>
+              <a class="sk-sidenav__item" href="#">材質</a>
+              <a class="sk-sidenav__item" href="#">トークン</a>
+              <a class="sk-sidenav__item" href="#">コンポーネント</a>
+            </aside>
+
+            <article class="doc-body">
+              <div class="dtop__crumb">ドキュメント / ガイド / 概要</div>
+              <h2 class="sk-t-title1" style="margin:6px 0 12px">はじめに</h2>
+              <div class="rowx" style="gap:10px;margin-bottom:16px"><span class="sk-avatar sk-avatar--s">SZ</span><span class="sk-t-sub" style="color:var(--sk-ink-2)">鈴木 淳也</span><span class="sk-dot" style="background:var(--sk-ink-3)"></span><span class="sk-t-sub" style="color:var(--sk-ink-3)">2026-07-11 · 5 分で読める</span></div>
+              <p>sukashi は Liquid Glass 系の材質を Web 汎用に翻訳したモノクローム・デザインシステムです。依存ゼロ・単一 CSS ファイルで動きます。</p>
+              <div class="sk-glass sk-notice"><svg class="sk-icon"><use href="#sk-i-info"/></svg><span>この版は v2.2 です。旧版からの移行は「変更履歴」を参照してください。</span></div>
+              <h3 id="d-material">材質は 1 クラス</h3>
+              <p><span class="sk-code">.sk-glass</span> が唯一のガラス定義です。全コンポーネントは形状だけを持ち、材質は合成で与えます。調整が全部材に波及する構造を守ります。</p>
+              <p>透明度は単一変数 <span class="sk-code">--gi</span> に集約され、不透明度・blur・彩度・エッジ・影が <span class="sk-code">calc()</span> で連動します。</p>
+              <h3 id="d-token">トークン構造</h3>
+              <p>スペーシングは 4px グリッド、半径は同心円(外周R = 内周R + パディング)で構成します。プライマリーは黒の完全モノクローム、有彩色は意味色のみに限定します。</p>
+              <p>数値は <span class="sk-code">tabular-nums</span> の等幅で組み、桁が揃うようにします。</p>
+            </article>
+
+            <nav class="toc">
+              <div class="dtop__navlabel" style="padding:0 0 4px">目次</div>
+              <a href="#" class="is-on">はじめに</a>
+              <a href="#d-material">材質は 1 クラス</a>
+              <a href="#d-token">トークン構造</a>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+    <!-- P4: メールクライアント 3ペイン -->
+    <figure class="pc-item">
+      <figcaption class="patt-label">サイト · メールクライアント 3ペイン(コミュニケーション)</figcaption>
+      <div class="browser">
+        <div class="browser__bar"><div class="browser__dots"><i></i><i></i><i></i></div><div class="browser__url">mail.sukashi.example</div></div>
+        <div class="browser__view">
+          <div class="mail">
+            <aside class="sk-glass sk-sidenav">
+              <button class="sk-btn sk-btn--primary" style="width:100%;margin-bottom:8px"><svg class="sk-icon sk-icon--s"><use href="#sk-i-edit"/></svg>作成</button>
+              <a class="sk-sidenav__item is-on" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-inbox"/></svg>受信箱<span class="sk-badge" style="margin-left:auto">8</span></a>
+              <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-star"/></svg>スター付き</a>
+              <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-share"/></svg>送信済み</a>
+              <a class="sk-sidenav__item" href="#"><svg class="sk-icon sk-icon--s"><use href="#sk-i-trash"/></svg>ゴミ箱</a>
+            </aside>
+
+            <div class="sk-glass sk-card" style="padding:8px">
+              <div class="dtop__cardhead" style="padding:8px 10px"><span style="font-weight:700">受信箱</span><div class="dtop__grow"></div><button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-refresh"/></svg></button></div>
+              <div class="mail-list__row is-on">
+                <div class="rowx" style="gap:8px"><span class="sk-dot sk-cat-1"></span><span style="font-weight:700;font-size:var(--sk-t-sub);flex:1">Next Engine</span><span class="sk-t-caption" style="color:var(--sk-ink-3)">14:32</span></div>
+                <div style="font-size:var(--sk-t-sub);font-weight:600">出荷完了のお知らせ #100248</div>
+                <div class="sk-t-caption" style="color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">ご注文を本日出荷いたしました。追跡番号は…</div>
+              </div>
+              <div class="mail-list__row">
+                <div class="rowx" style="gap:8px"><span class="sk-dot" style="background:var(--sk-ink-3)"></span><span style="font-weight:600;font-size:var(--sk-t-sub);flex:1">楽天市場</span><span class="sk-t-caption" style="color:var(--sk-ink-3)">11:05</span></div>
+                <div style="font-size:var(--sk-t-sub)">週次売上レポート</div>
+                <div class="sk-t-caption" style="color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">今週の売上は前週比 +8.2% でした…</div>
+              </div>
+              <div class="mail-list__row">
+                <div class="rowx" style="gap:8px"><span class="sk-dot" style="background:var(--sk-ink-3)"></span><span style="font-weight:600;font-size:var(--sk-t-sub);flex:1">田中 花子</span><span class="sk-t-caption" style="color:var(--sk-ink-3)">昨日</span></div>
+                <div style="font-size:var(--sk-t-sub)">ギフト包装について</div>
+                <div class="sk-t-caption" style="color:var(--sk-ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">先ほどはありがとうございました…</div>
+              </div>
+            </div>
+
+            <div class="sk-glass sk-card">
+              <div class="rowx" style="justify-content:space-between;margin-bottom:6px"><h3 class="sk-t-title2">出荷完了のお知らせ #100248</h3><div class="rowx"><button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-restore"/></svg></button><button class="sk-iconbtn"><svg class="sk-icon sk-icon--s"><use href="#sk-i-trash"/></svg></button></div></div>
+              <div class="rowx" style="gap:10px;margin-bottom:14px"><span class="sk-avatar sk-avatar--s">NE</span><div class="sk-row__main"><div style="font-weight:600;font-size:var(--sk-t-sub)">Next Engine <span style="color:var(--sk-ink-3);font-weight:400">&lt;noreply@ne.example&gt;</span></div><div class="sk-t-caption" style="color:var(--sk-ink-3)">宛先: 田中 花子 · 14:32</div></div></div>
+              <hr class="sk-divider">
+              <div style="padding-top:14px;font-size:var(--sk-t-sub);line-height:1.7">
+                <p>田中様</p>
+                <p style="margin-top:10px">ご注文 #100248 を本日出荷いたしました。追跡番号は下記の通りです。</p>
+                <p style="margin-top:10px"><span class="sk-code sk-code--l">JP-2048-8841-2290</span></p>
+                <p style="margin-top:10px">到着まで今しばらくお待ちください。</p>
+              </div>
+              <div class="rowx" style="margin-top:18px"><button class="sk-btn sk-btn--primary"><svg class="sk-icon sk-icon--s"><use href="#sk-i-share"/></svg>返信</button><button class="sk-glass sk-btn">転送</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </figure>
+
+  </div><!-- /.pcs -->
+</div><!-- /.gallery -->
+
+</div><!-- /.host -->
 
 <!-- タブバー -->
 <nav class="sk-glass sk-tabbar sk">
@@ -1460,6 +1945,23 @@ document.querySelectorAll('.icell').forEach(function(c){ c.addEventListener('cli
   var name = 'sk-i-' + c.dataset.name;
   if (navigator.clipboard) navigator.clipboard.writeText(name);
   showToast(name + ' をコピー');
+});});
+
+// ビュー切替(ガイド / パターン集)
+var viewGuide = document.getElementById('view-guide');
+var viewPatterns = document.getElementById('view-patterns');
+document.querySelectorAll('.viewseg .sk-seg__item').forEach(function(b){ b.addEventListener('click', function(){
+  var v = b.dataset.view, patterns = (v === 'patterns');
+  viewGuide.hidden = patterns;
+  viewPatterns.hidden = !patterns;
+  document.body.classList.toggle('is-patterns', patterns);
+  window.scrollTo(0, 0);
+});});
+// デバイス切替(Mobile / PC)
+document.querySelectorAll('.devseg .sk-seg__item').forEach(function(b){ b.addEventListener('click', function(){
+  var mobile = (b.dataset.dev === 'mobile');
+  document.querySelector('.phones').hidden = !mobile;
+  document.querySelector('.pcs').hidden = mobile;
 });});
 </script>
 </body>
