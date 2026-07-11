@@ -818,7 +818,17 @@ html.sk-dark body { background: #0E0F12; }   /* ダーク時のホスト下地 *
 .stage { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
 .sec-label { font-size: var(--sk-t-caption); color: var(--sk-ink-3);
   letter-spacing: 0.12em; font-family: var(--sk-mono); margin-bottom: 10px; }
-.sec { }
+.sec { break-inside: avoid; }
+/* ガイド表示のレスポンシブ: モバイルは 1 カラム(.stage 既定)、PC 幅では複数カラムの
+   メーソンリーに切り替えて横幅を活かす。各セクションは break-inside:avoid で分割しない。
+   パターン集(#view-patterns)は端末フレームで自前に対応するのでここでは触らない。 */
+@media (min-width: 900px) {
+  #view-guide { max-width: 820px; display: block; columns: 2; column-gap: 24px; }
+  #view-guide > .sec { margin: 0 0 24px; }
+}
+@media (min-width: 1300px) {
+  #view-guide { max-width: 1240px; columns: 3; }
+}
 .stack { display: flex; flex-direction: column; gap: 12px; }
 .rowx { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .panel { position: sticky; top: 12px; z-index: 150; }
