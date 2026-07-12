@@ -20,6 +20,8 @@ public struct SukashiButtonStyle: ButtonStyle {
         let configuration: Configuration
         @Environment(\.colorScheme) private var scheme
         @Environment(\.sukashiAccent) private var accent
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
+        @State private var hovering = false
 
         var body: some View {
             let label = configuration.label
@@ -27,10 +29,16 @@ public struct SukashiButtonStyle: ButtonStyle {
                 .padding(.horizontal, Sukashi.Space.s6)
                 .frame(minHeight: 44)
 
+            // マイクロインタラクション: press で沈み(scale)、hover で 1px 浮く(ポインタ環境のみ)。
+            // reduce-motion 時はアニメーションを外す(状態変化は即時反映)。
+            let anim: Animation? = reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.7)
             styled(label)
                 .opacity(configuration.isPressed ? 0.92 : 1)
                 .scaleEffect(configuration.isPressed ? 0.96 : 1)
-                .animation(.spring(response: 0.24, dampingFraction: 0.7), value: configuration.isPressed)
+                .offset(y: (hovering && !configuration.isPressed) ? -1 : 0)
+                .animation(anim, value: configuration.isPressed)
+                .animation(anim, value: hovering)
+                .onHover { hovering = $0 }
         }
 
         @ViewBuilder

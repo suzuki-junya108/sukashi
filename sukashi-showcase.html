@@ -120,7 +120,8 @@
   color: var(--sk-ink);
   -webkit-font-smoothing: antialiased;
 }
-.sk :focus-visible { outline: 2px solid var(--sk-accent); outline-offset: 2px; }
+.sk :focus-visible { outline: 2px solid var(--sk-accent); outline-offset: 2px;
+  animation: sk-focus-in var(--sk-dur-1) var(--sk-ease); }
 
 .sk-mono {
   font-family: var(--sk-mono);
@@ -1022,6 +1023,37 @@ html.sk-dark .browser { background: #0E0F12; }
 .chat-input { display: flex; align-items: center; gap: 8px; padding: 8px; margin: 8px; border-radius: 999px; flex-shrink: 0; }
 .chat-input input { flex: 1; min-width: 0; border: none; background: transparent; outline: none;
   font: var(--sk-t-sub)/1.4 var(--sk-font); color: var(--sk-ink); }
+
+/* ==========================================================================
+   マイクロインタラクション(標準セット / sukashi.css と同内容)
+   transform / opacity / 影のみ。色は増やさない。reduced-motion で自動停止。
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  .sk-btn:not(:disabled):hover  { transform: translateY(-1px); }
+  .sk-btn:not(:disabled):active { transform: translateY(0) scale(0.96); }
+  .sk-iconbtn:hover             { transform: translateY(-1px); }
+  .sk-iconbtn:active            { transform: translateY(0) scale(0.9); }
+  .sk-seg__item:not(.is-on):not([aria-selected="true"]):hover { color: var(--sk-ink); }
+  .sk-tabbar__item:not(.is-on):hover { color: var(--sk-ink); }
+  .sk-table tbody tr { transition: background var(--sk-dur-1) var(--sk-ease); }
+  .sk-table tbody tr:hover { background: var(--sk-fill-1); }
+}
+@keyframes sk-focus-in { from { outline-offset: 6px; } to { outline-offset: 2px; } }
+.sk-seg.has-slide, .sk-tabbar.has-slide { position: relative; }
+.sk-slide-ind {
+  position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none;
+  border-radius: var(--sk-r-pill);
+  background: rgba(var(--sk-tint), 0.55);
+  box-shadow: inset 0 1px 0 var(--sk-edge-spec), 0 2px 8px rgba(0,0,0,0.10);
+  transition: transform var(--sk-dur-2) var(--sk-spring),
+              width  var(--sk-dur-2) var(--sk-spring),
+              height var(--sk-dur-2) var(--sk-spring);
+}
+.sk-seg.has-slide .sk-seg__item,
+.sk-tabbar.has-slide .sk-tabbar__item { position: relative; z-index: 1; }
+.sk-seg.has-slide .sk-seg__item.is-on,
+.sk-seg.has-slide .sk-seg__item[aria-selected="true"],
+.sk-tabbar.has-slide .sk-tabbar__item.is-on { background: transparent; box-shadow: none; }
 </style>
 </head>
 <body>
@@ -2073,6 +2105,47 @@ function applyCustom(){
   accentCustom.closest('.swatch').style.setProperty('--sw', c);
 }
 accentCustom.addEventListener('input', applyCustom);
+
+// セグメント/タブのスライド追従インジケータ(.has-slide + .sk-slide-ind を JS で用意)
+(function(){
+  function setup(container, itemSel){
+    var items = [].slice.call(container.querySelectorAll(itemSel));
+    if (items.length < 2) return;
+    container.classList.add('has-slide');
+    var ind = document.createElement('span');
+    ind.className = 'sk-slide-ind';
+    container.insertBefore(ind, container.firstChild);
+    function cur(){
+      return container.querySelector(itemSel + '.is-on')
+        || container.querySelector(itemSel + '[aria-selected="true"]') || items[0];
+    }
+    function place(el, animate){
+      if (!el || !el.offsetWidth) return;            // 非表示中は測れないのでスキップ
+      if (!animate) ind.style.transition = 'none';
+      ind.style.width  = el.offsetWidth + 'px';
+      ind.style.height = el.offsetHeight + 'px';
+      ind.style.transform = 'translate(' + el.offsetLeft + 'px,' + el.offsetTop + 'px)';
+      if (!animate) { ind.getBoundingClientRect(); ind.style.transition = ''; }  // reflow で遷移復帰
+    }
+    container.__place = function(animate){ place(cur(), animate); };
+    items.forEach(function(it){ it.addEventListener('click', function(){ place(it, true); }); });
+    container.__place(false);
+  }
+  var conts = [].slice.call(document.querySelectorAll('.sk-seg, .sk-tabbar'));
+  conts.forEach(function(c){
+    setup(c, c.classList.contains('sk-tabbar') ? '.sk-tabbar__item' : '.sk-seg__item');
+  });
+  // 端末フレーム内など初期非表示のものは、表示された時に測り直す
+  if (window.IntersectionObserver){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting && e.target.__place) e.target.__place(false); });
+    });
+    conts.forEach(function(c){ io.observe(c); });
+  }
+  window.addEventListener('resize', function(){
+    conts.forEach(function(c){ if (c.__place) c.__place(false); });
+  });
+})();
 </script>
 </body>
 </html>

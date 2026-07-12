@@ -56,6 +56,7 @@ public struct SukashiSideNavItem: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.colorSchemeContrast) private var contrast
+    @State private var hovering = false
 
     public init(_ title: String,
                 systemImage: String? = nil,
@@ -90,9 +91,14 @@ public struct SukashiSideNavItem: View {
                         }
                         .clipShape(shape)
                         .shadow(color: .black.opacity(0.10), radius: 4, y: 2)
+                } else if hovering {
+                    // 非選択項目の hover: 無彩フィル(CSS .sk-sidenav__item:hover と同じ)
+                    RoundedRectangle(cornerRadius: Sukashi.Radius.l - Sukashi.Space.s2, style: .continuous)
+                        .fill(Sukashi.fill(1, scheme))
                 }
             }
             .contentShape(Rectangle())
+            .onHover { hovering = $0 }
         }
         .buttonStyle(.plain)
     }
